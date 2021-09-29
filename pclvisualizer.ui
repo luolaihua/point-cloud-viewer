@@ -233,28 +233,84 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QPushButton" name="pushButton_load">
+        <widget class="QPushButton" name="pushButton_dec">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="minimumSize">
           <size>
            <width>50</width>
            <height>40</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>24</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
-          <string>加载点云</string>
+          <string>-</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_save">
+        <widget class="QLabel" name="label_pointSize">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="lineWidth">
+          <number>1</number>
+         </property>
+         <property name="text">
+          <string>1</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_inc">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="minimumSize">
           <size>
            <width>50</width>
            <height>40</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <pointsize>24</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
          <property name="text">
-          <string>保存点云</string>
+          <string>+</string>
          </property>
         </widget>
        </item>
@@ -365,17 +421,89 @@
     <addaction name="actionload_point_cloud"/>
     <addaction name="actionsave_point_cloud"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>ShortcutKey</string>
+    </property>
+    <addaction name="action_P"/>
+    <addaction name="actionWireFrame_Based_W"/>
+    <addaction name="actionSnapshot_J"/>
+    <addaction name="actionCamera_Param_C"/>
+    <addaction name="actionPoint_Size"/>
+    <addaction name="actionZoom_ALT"/>
+    <addaction name="actionScale_Grid_G"/>
+    <addaction name="actionLUT"/>
+    <addaction name="actionPerspectice_O"/>
+    <addaction name="actionReset_Camera_R"/>
+    <addaction name="actionStereo_Mode_ALT_S"/>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionload_point_cloud">
    <property name="text">
-    <string>load point cloud</string>
+    <string>加载点云</string>
    </property>
   </action>
   <action name="actionsave_point_cloud">
    <property name="text">
-    <string>save point cloud</string>
+    <string>保存点云</string>
+   </property>
+  </action>
+  <action name="action_P">
+   <property name="text">
+    <string>Point-Based [P]</string>
+   </property>
+  </action>
+  <action name="actionWireFrame_Based_W">
+   <property name="text">
+    <string>WireFrame-Based [W]</string>
+   </property>
+  </action>
+  <action name="actionSnapshot_J">
+   <property name="text">
+    <string>Snapshot [J]</string>
+   </property>
+  </action>
+  <action name="actionCamera_Param_C">
+   <property name="text">
+    <string>Camera Param [C]</string>
+   </property>
+  </action>
+  <action name="actionPoint_Size">
+   <property name="text">
+    <string>Point Size [+/-]</string>
+   </property>
+  </action>
+  <action name="actionZoom_ALT">
+   <property name="text">
+    <string>Zoom [ALT + (+/-)]</string>
+   </property>
+  </action>
+  <action name="actionScale_Grid_G">
+   <property name="text">
+    <string>Scale Grid [G]</string>
+   </property>
+  </action>
+  <action name="actionLUT">
+   <property name="text">
+    <string>LUT [U]</string>
+   </property>
+  </action>
+  <action name="actionPerspectice_O">
+   <property name="text">
+    <string>Perspectice [O]</string>
+   </property>
+  </action>
+  <action name="actionReset_Camera_R">
+   <property name="text">
+    <string>Reset Camera [R]</string>
+   </property>
+  </action>
+  <action name="actionStereo_Mode_ALT_S">
+   <property name="text">
+    <string>Stereo Mode [ALT + S]</string>
    </property>
   </action>
  </widget>

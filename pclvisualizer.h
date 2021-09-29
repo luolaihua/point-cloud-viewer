@@ -18,8 +18,8 @@
 #include <vtkRenderWindow.h>
 
 //使用的点云格式
-// typedef pcl::PointXYZRGBA PointT;
-typedef pcl::PointXYZ PointT;
+typedef pcl::PointXYZRGBA PointT;
+// typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
 
 QT_BEGIN_NAMESPACE
@@ -36,6 +36,10 @@ class PCLVisualizer : public QMainWindow {
     ~PCLVisualizer();
   public slots:
     void test();
+    //初始化数据
+    void initPointCloud();
+    //连接信号槽
+    void connectSS();
     //保存文件
     void savePCDFile();
     void loadPCDFile();
@@ -44,8 +48,13 @@ class PCLVisualizer : public QMainWindow {
     void chooseAxis();
     //选择颜色模式
     void chooseColorMode();
+    //增大 Point Size
+    void IncPointSize();
+    //减小 Point Size
+    void DecPointSize();
 
   protected:
+    int point_size;
     //创建一个共享的PCLVisualizer 对象用于显示
     pcl::visualization::PCLVisualizer::Ptr viewer_;
     //创建一个共享指针用于保存点云
