@@ -11,6 +11,7 @@
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
+#include <QColorDialog>
 // Boost
 #include <boost/math/special_functions/round.hpp>
 
@@ -52,9 +53,12 @@ class PCLVisualizer : public QMainWindow {
     void IncPointSize();
     //减小 Point Size
     void DecPointSize();
+    //添加/取消坐标轴
+    void AddCoordinateSystem();
 
   protected:
     int point_size;
+    QColor point_color;
     //创建一个共享的PCLVisualizer 对象用于显示
     pcl::visualization::PCLVisualizer::Ptr viewer_;
     //创建一个共享指针用于保存点云

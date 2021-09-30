@@ -215,6 +215,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QRadioButton" name="radioButton_others">
+          <property name="text">
+           <string>自定义</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="verticalSpacer_3">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
@@ -423,7 +430,7 @@
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
-     <string>ShortcutKey</string>
+     <string>快捷键</string>
     </property>
     <addaction name="action_P"/>
     <addaction name="actionWireFrame_Based_W"/>
@@ -437,8 +444,15 @@
     <addaction name="actionReset_Camera_R"/>
     <addaction name="actionStereo_Mode_ALT_S"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>工具</string>
+    </property>
+    <addaction name="actionCoordinateSystem"/>
+   </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
+   <addaction name="menuTools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionload_point_cloud">
@@ -504,6 +518,11 @@
   <action name="actionStereo_Mode_ALT_S">
    <property name="text">
     <string>Stereo Mode [ALT + S]</string>
+   </property>
+  </action>
+  <action name="actionCoordinateSystem">
+   <property name="text">
+    <string>CoordinateSystem [OFF]</string>
    </property>
   </action>
  </widget>

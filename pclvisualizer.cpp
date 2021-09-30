@@ -22,7 +22,7 @@ PCLVisualizer::PCLVisualizer(QWidget* parent) : QMainWindow(parent), ui(new Ui::
 
     viewer_->addPointCloud(cloud_, "cloud");
     viewer_->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size);
-    viewer_->addCoordinateSystem(1);
+    // viewer_->addCoordinateSystem(1);
     viewer_->resetCamera();
     viewer_->setLookUpTableID("cloud");
     ui->qvtkWidget->update();
@@ -50,6 +50,7 @@ void PCLVisualizer::connectSS() {
     connect(ui->pushButton_inc, &QPushButton::clicked, this, &PCLVisualizer::IncPointSize);
     connect(ui->actionload_point_cloud, &QAction::triggered, this, &PCLVisualizer::loadPCDFile);
     connect(ui->actionsave_point_cloud, &QAction::triggered, this, &PCLVisualizer::savePCDFile);
+    connect(ui->actionCoordinateSystem, &QAction::triggered, this, &PCLVisualizer::AddCoordinateSystem);
     // Connect "Load" and "Save" buttons and their functions
     connect(ui->pushButton_dec, &QPushButton::clicked, this, &PCLVisualizer::DecPointSize);
 
@@ -63,6 +64,7 @@ void PCLVisualizer::connectSS() {
     connect(ui->radioButton_WhiteRed, &QRadioButton::clicked, this, &PCLVisualizer::chooseColorMode);
     connect(ui->radioButton_GreyRed, &QRadioButton::clicked, this, &PCLVisualizer::chooseColorMode);
     connect(ui->radioButton_Rainbow, &QRadioButton::clicked, this, &PCLVisualizer::chooseColorMode);
+    connect(ui->radioButton_others, &QRadioButton::clicked, this, &PCLVisualizer::chooseColorMode);
 }
 
 void PCLVisualizer::savePCDFile() {
@@ -135,6 +137,8 @@ void PCLVisualizer::loadPCDFile() {
 }
 
 void PCLVisualizer::chooseAxis() {
+    if (color_mode_ == 5)
+        return;
     // Only 1 of the button can be checked at the time (mutual exclusivity) in a group of radio buttons
     if (ui->radioButton_x->isChecked()) {
         PCL_INFO("x filtering chosen\n");
@@ -166,9 +170,17 @@ void PCLVisualizer::chooseColorMode() {
     } else if (ui->radioButton_GreyRed->isChecked()) {
         PCL_INFO("Grey / Red LUT chosen\n");
         color_mode_ = 3;
-    } else {
+    } else if (ui->radioButton_Rainbow->isChecked()) {
         PCL_INFO("Rainbow LUT chosen\n");
         color_mode_ = 4;
+    } else {
+        PCL_INFO("Full color chosen\n");
+        color_mode_ = 5;
+        QColor c = QColorDialog::getColor(Qt::red);
+        if (c.isValid()) {
+            point_color = c;
+            qDebug() << "RBG: " << c.red() << " " << c.green() << " " << c.blue();
+        }
     }
 
     colorCloudDistances();
@@ -181,7 +193,7 @@ void PCLVisualizer::IncPointSize() {
 
     qDebug() << "point_size = " << point_size;
     ui->label_pointSize->setText(QString::number(point_size));
-    viewer_->updatePointCloud(cloud_, "cloud");
+    // viewer_->updatePointCloud(cloud_, "cloud");
     ui->qvtkWidget->update();
 }
 
@@ -191,7 +203,20 @@ void PCLVisualizer::DecPointSize() {
     viewer_->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, --point_size);
     ui->label_pointSize->setText(QString::number(point_size));
     qDebug() << "point_size = " << point_size;
-    viewer_->updatePointCloud(cloud_, "cloud");
+    // viewer_->updatePointCloud(cloud_, "cloud");
+    ui->qvtkWidget->update();
+}
+
+void PCLVisualizer::AddCoordinateSystem() {
+    QString str = ui->actionCoordinateSystem->text();
+    if (str.compare("CoordinateSystem [OFF]") == 0) {
+        qDebug() << str;
+        ui->actionCoordinateSystem->setText("CoordinateSystem [ON]");
+        viewer_->addCoordinateSystem();
+    } else {
+        ui->actionCoordinateSystem->setText("CoordinateSystem [OFF]");
+        viewer_->removeCoordinateSystem();
+    }
     ui->qvtkWidget->update();
 }
 
@@ -291,6 +316,11 @@ void PCLVisualizer::colorCloudDistances() {
                     cloud_it->g = 128;
                     cloud_it->b = 128;
                 }
+                break;
+            case 5:
+                cloud_it->r = point_color.red();
+                cloud_it->g = point_color.green();
+                cloud_it->b = point_color.blue();
                 break;
             default:
                 // Blue -> Green -> Red (~ rainbow)
