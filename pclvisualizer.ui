@@ -454,6 +454,88 @@
    <addaction name="menu_2"/>
    <addaction name="menuTools"/>
   </widget>
+<widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionOpen"/>
+   <addaction name="separator"/>
+   <addaction name="actionUp"/>
+   <addaction name="actionBottom"/>
+   <addaction name="actionFront"/>
+   <addaction name="actionBack"/>
+   <addaction name="actionLeft"/>
+   <addaction name="actionRight"/>
+  </widget>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="PCLView.qrc">
+     <normaloff>:/PointCloud/image/open.png</normaloff>:/PointCloud/image/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>打开</string>
+   </property>
+  </action>
+  <action name="actionUp">
+   <property name="icon">
+    <iconset resource="PCLView.qrc">
+     <normaloff>:/PointCloud/image/up.png</normaloff>:/PointCloud/image/up.png</iconset>
+   </property>
+   <property name="text">
+    <string>Up</string>
+   </property>
+  </action>
+  <action name="actionBottom">
+   <property name="icon">
+    <iconset resource="PCLView.qrc">
+     <normaloff>:/PointCloud/image/bottom.png</normaloff>:/PointCloud/image/bottom.png</iconset>
+   </property>
+   <property name="text">
+    <string>Bottom</string>
+   </property>
+  </action>
+  <action name="actionFront">
+   <property name="icon">
+    <iconset resource="PCLView.qrc">
+     <normaloff>:/PointCloud/image/front.png</normaloff>:/PointCloud/image/front.png</iconset>
+   </property>
+   <property name="text">
+    <string>Front</string>
+   </property>
+  </action>
+  <action name="actionBack">
+   <property name="icon">
+    <iconset resource="PCLView.qrc">
+     <normaloff>:/PointCloud/image/back.png</normaloff>:/PointCloud/image/back.png</iconset>
+   </property>
+   <property name="text">
+    <string>Back</string>
+   </property>
+  </action>
+  <action name="actionLeft">
+   <property name="icon">
+    <iconset resource="PCLView.qrc">
+     <normaloff>:/PointCloud/image/left.png</normaloff>:/PointCloud/image/left.png</iconset>
+   </property>
+   <property name="text">
+    <string>Left</string>
+   </property>
+  </action>
+  <action name="actionRight">
+   <property name="icon">
+    <iconset resource="PCLView.qrc">
+     <normaloff>:/PointCloud/image/right.png</normaloff>:/PointCloud/image/right.png</iconset>
+   </property>
+   <property name="text">
+    <string>Right</string>
+   </property>
+  </action>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionload_point_cloud">
    <property name="text">

@@ -9,6 +9,7 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   , point_size(1)
 {
   ui->setupUi(this);
+  qDebug() << "666777888";
   QString str = "PointCloudViewer";
   this->setWindowTitle(str);
 
@@ -59,6 +60,9 @@ PCLVisualizer::initPointCloud()
     cloud_->points[i].y = 1024 * rand() / (RAND_MAX + 1.0f);
     cloud_->points[i].z = 1024 * rand() / (RAND_MAX + 1.0f);
   }
+
+  pcl::getMinMax3D(*cloud_, p_min, p_max);
+  maxLen = getMaxValue(p_max, p_min);
 }
 
 void
@@ -203,6 +207,9 @@ PCLVisualizer::loadPCDFile()
     //                 << " " << cloud_it->_PointXYZRGBA::a;
     cloud_it->_PointXYZRGBA::a = 255;
   }
+
+  pcl::getMinMax3D(*cloud_, p_min, p_max);
+  maxLen = getMaxValue(p_max, p_min);
 
   colorCloudDistances();
   viewer_->updatePointCloud(cloud_, "cloud");
@@ -430,4 +437,150 @@ PCLVisualizer::colorCloudDistances()
           value < 128 ? 255 - (2 * value) : 0; // b[0] = 255, b[128] = 0
     }
   }
+}
+
+void
+PCLVisualizer::on_actionOpen_triggered()
+{
+  qDebug() << "on_actionOpen_triggered";
+}
+
+//俯视图
+void
+PCLVisualizer::on_actionUp_triggered()
+{
+  if (!cloud_->empty()) {
+    viewer_->setCameraPosition(0.5 * (p_min.x + p_max.x),
+                               0.5 * (p_min.y + p_max.y),
+                               p_max.z + 2 * maxLen,
+                               0.5 * (p_min.x + p_max.x),
+                               0.5 * (p_min.y + p_max.y),
+                               p_max.z,
+                               0,
+                               1,
+                               0);
+    ui->qvtkWidget->update();
+  }
+}
+
+void
+PCLVisualizer::on_actionBottom_triggered()
+{
+  if (!cloud_->empty()) {
+    viewer_->setCameraPosition(0.5 * (p_min.x + p_max.x),
+                               0.5 * (p_min.y + p_max.y),
+                               p_min.z - 2 * maxLen,
+                               0.5 * (p_min.x + p_max.x),
+                               0.5 * (p_min.y + p_max.y),
+                               p_min.z,
+                               0,
+                               1,
+                               0);
+    ui->qvtkWidget->update();
+  }
+}
+
+void
+PCLVisualizer::on_actionFront_triggered()
+{
+  if (!cloud_->empty()) {
+    viewer_->setCameraPosition(0.5 * (p_min.x + p_max.x),
+                               p_min.y - 2 * maxLen,
+                               0.5 * (p_min.z + p_max.z),
+                               0.5 * (p_min.x + p_max.x),
+                               p_min.y,
+                               0.5 * (p_min.z + p_max.z),
+                               0,
+                               0,
+                               1);
+    ui->qvtkWidget->update();
+  }
+}
+
+void
+PCLVisualizer::on_actionBack_triggered()
+{
+  if (!cloud_->empty()) {
+    viewer_->setCameraPosition(0.5 * (p_min.x + p_max.x),
+                               p_max.y + 2 * maxLen,
+                               0.5 * (p_min.z + p_max.z),
+                               0.5 * (p_min.x + p_max.x),
+                               p_min.y,
+                               0.5 * (p_min.z + p_max.z),
+                               0,
+                               0,
+                               1);
+    ui->qvtkWidget->update();
+  }
+}
+
+void
+PCLVisualizer::on_actionLeft_triggered()
+{
+  if (!cloud_->empty()) {
+    viewer_->setCameraPosition(p_min.x - 2 * maxLen,
+                               0.5 * (p_min.y + p_max.y),
+                               0.5 * (p_min.z + p_max.z),
+                               p_max.x,
+                               0.5 * (p_min.y + p_max.y),
+                               0.5 * (p_min.z + p_max.z),
+                               0,
+                               0,
+                               1);
+    ui->qvtkWidget->update();
+  }
+}
+
+void
+PCLVisualizer::on_actionRight_triggered()
+{
+  if (!cloud_->empty()) {
+    viewer_->setCameraPosition(p_max.x + 2 * maxLen,
+                               0.5 * (p_min.y + p_max.y),
+                               0.5 * (p_min.z + p_max.z),
+                               p_max.x,
+                               0.5 * (p_min.y + p_max.y),
+                               0.5 * (p_min.z + p_max.z),
+                               0,
+                               0,
+                               1);
+    ui->qvtkWidget->update();
+  }
+}
+
+double
+PCLVisualizer::getMinValue(PointT p1, PointT p2)
+{
+  double min = 0;
+
+  if (p1.x - p2.x > p1.y - p2.y) {
+    min = p1.y - p2.y;
+  } else {
+    min = p1.x - p2.x;
+  }
+
+  if (min > p1.z - p2.z) {
+    min = p1.z - p2.z;
+  }
+
+  return min;
+}
+
+double
+PCLVisualizer::getMaxValue(PointT p1, PointT p2)
+{
+  double max = 0;
+
+  if (p1.x - p2.x > p1.y - p2.y) {
+    max = p1.x - p2.x;
+
+  } else {
+    max = p1.y - p2.y;
+  }
+
+  if (max < p1.z - p2.z) {
+    max = p1.z - p2.z;
+  }
+
+  return max;
 }

@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/PointCloud">
+        <file>image/back.png</file>
+        <file>image/bottom.png</file>
+        <file>image/front.png</file>
+        <file>image/left.png</file>
+        <file>image/right.png</file>
+        <file>image/up.png</file>
+        <file>image/open.png</file>
+    </qresource>
+</RCC>

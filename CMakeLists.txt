@@ -30,6 +30,7 @@ set(PROJECT_SOURCES
         pclvisualizer.cpp
         pclvisualizer.h
         pclvisualizer.ui
+		image.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
