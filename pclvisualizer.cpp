@@ -16,14 +16,14 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
 
 {
   ui->setupUi(this);
-  //  qDebug() << "666777888";
+
   QString str = "PointCloudViewer";
   this->setWindowTitle(str);
 
   //  //创建动作，工具栏以及菜单栏
-  //  createActions();
-  //  createMenus();
-  //  createToolBars();
+  createActions();
+  //    createMenus();
+  createToolBars();
 
   initPointCloud();
   //璁剧疆QVTK绐楀彛
@@ -55,172 +55,191 @@ PCLVisualizer::~PCLVisualizer()
 void
 PCLVisualizer::createActions()
 {
-  //鈥滄墦寮€鈥濆姩浣?
-  openFileAction =
-    new QAction(QIcon(":/images/Excel_in.png"), "测试", this); //(a)
-  openFileAction->setShortcut(tr("Ctrl+O"));                   //(b)
-  openFileAction->setStatusTip(tr("测试"));                    //(c)
+  //添加点云
+  addCloudAction =
+    new QAction(QIcon(":/images/files/cloud.png"), "添加点云", this);
+  addCloudAction->setShortcut(tr("Ctrl+O"));    //(b)
+  addCloudAction->setStatusTip(tr("添加点云")); //(c)
 
-  //鈥滄柊寤衡€濆姩浣?
-  NewFileAction = new QAction(QIcon("new.png"), tr("测试"), this);
-  NewFileAction->setShortcut(tr("Ctrl+N"));
-  NewFileAction->setStatusTip(tr("测试"));
+  //新建工作台
+  newWorkStationAction =
+    new QAction(QIcon(":/images/files/add.png"), tr("new"), this);
+  newWorkStationAction->setShortcut(tr("Ctrl+N"));
+  newWorkStationAction->setStatusTip(tr("new"));
 
-  //鈥滈€€鍑衡€濆姩浣?
-  exitAction = new QAction(tr("测试?"), this);
-  exitAction->setShortcut(tr("Ctrl+Q"));
-  exitAction->setStatusTip(tr("测试"));
+  //打开点云文件
+  newCloudAction =
+    new QAction(QIcon(":/images/files/new2.png"), tr("打开点云文件"), this);
+  //  exitAction->setShortcut(tr("Ctrl+Q"));
+  newCloudAction->setStatusTip(tr("打开点云文件"));
 
-  //鈥滃鍒垛€濆姩浣?
-  copyAction = new QAction(QIcon("copy.png"), tr("测试"), this);
-  copyAction->setShortcut(tr("Ctrl+C"));
-  copyAction->setStatusTip(tr("测试"));
+  //复制点云
+  copyCloudAction =
+    new QAction(QIcon(":/images/files/copy.png"), tr("复制点云"), this);
+  copyCloudAction->setShortcut(tr("Ctrl+C"));
+  copyCloudAction->setStatusTip(tr("复制点云"));
 
-  //鈥滃壀鍒団€濆姩浣?
-  cutAction = new QAction(QIcon("cut.png"), tr("测试"), this);
-  cutAction->setShortcut(tr("Ctrl+X"));
-  cutAction->setStatusTip(tr("测试"));
+  //剪切点云
+  cutCloudAction =
+    new QAction(QIcon(":/images/files/cut.png"), tr("剪切点云"), this);
+  cutCloudAction->setShortcut(tr("Ctrl+X"));
+  cutCloudAction->setStatusTip(tr("剪切点云"));
 
-  //鈥滅矘璐粹€濆姩浣?
-  pasteAction = new QAction(QIcon("paste.png"), tr("测试"), this);
-  pasteAction->setShortcut(tr("Ctrl+V"));
-  pasteAction->setStatusTip(tr("测试"));
+  //粘贴点云
+  pasteCloudAction =
+    new QAction(QIcon(":/images/files/paste.png"), tr("粘贴点云"), this);
+  pasteCloudAction->setShortcut(tr("Ctrl+V"));
+  pasteCloudAction->setStatusTip(tr("粘贴点云"));
 
-  //鈥滃叧浜庘€濆姩浣?
-  aboutAction = new QAction(tr("测试"), this);
+  //查找点云文件
+  searchCloudAction =
+    new QAction(QIcon(":/images/files/search.png"), tr("查找点云文件"), this);
+  searchCloudAction->setShortcut(tr("Ctrl+F"));
+  searchCloudAction->setStatusTip(tr("查找点云文件"));
 
-  //鈥滄墦鍗版枃鏈€濆姩浣?
-  PrintTextAction = new QAction(QIcon("printText.png"), tr("测试"), this);
-  PrintTextAction->setStatusTip(tr("测试"));
+  //导出点云至PCD文件
+  exportCloud2PCDAction = new QAction(
+    QIcon(":/images/files/pointCloud.png"), tr("导出点云至PCD文件"), this);
+  exportCloud2PCDAction->setStatusTip(tr("导出点云至PCD文件"));
 
-  //鈥滄墦鍗板浘鍍忊€濆姩浣?
-  PrintImageAction = new QAction(QIcon("printImage.png"), tr("测试"), this);
-  PrintImageAction->setStatusTip(tr("测试"));
+  //导出点云至PLY文件
+  exportCloud2PLYAction = new QAction(
+    QIcon(":/images/files/cloud2.png"), tr("导出点云至PLY文件"), this);
+  exportCloud2PLYAction->setStatusTip(tr("导出点云至PLY文件"));
 
-  //鈥滄斁澶р€濆姩浣?
-  zoomInAction = new QAction(QIcon("zoomin.png"), tr("测试"), this);
-  zoomInAction->setStatusTip(tr("测试?"));
+  //导出点云至CSV文件
+  export2CSVAction =
+    new QAction(QIcon(":/images/files/CSV.png"), tr("导出点云至CSV文件"), this);
+  export2CSVAction->setStatusTip(tr("导出点云至CSV文件"));
 
-  //鈥滅缉灏忊€濆姩浣?
-  zoomOutAction = new QAction(QIcon("zoomout.png"), tr("测试"), this);
-  zoomOutAction->setStatusTip(tr("测试?"));
+  //导出点云至TXT文件
+  export2TXTAction =
+    new QAction(QIcon(":/images/files/txt.png"), tr("导出点云至TXT文件"), this);
+  export2TXTAction->setStatusTip(tr("导出点云至TXT文件"));
 
-  //瀹炵幇鍥惧儚鏃嬭浆鐨勫姩浣滐紙Action锛?
-  //鏃嬭浆90掳
-  rotate90Action = new QAction(QIcon("rotate90.png"), tr("测试"), this);
-  rotate90Action->setStatusTip(tr("测试"));
+  //收藏点云文件
+  starCloudAction =
+    new QAction(QIcon(":/images/files/star.png"), tr("收藏点云文件"), this);
+  starCloudAction->setStatusTip(tr("收藏点云文件"));
 
-  //鏃嬭浆180掳
-  rotate180Action = new QAction(QIcon("rotate180.png"), tr("测试"), this);
-  rotate180Action->setStatusTip(tr("测试"));
+  //导出点云处理日志
+  exportLogAction =
+    new QAction(QIcon(":/images/files/log.png"), tr("导出点云处理日志"), this);
+  exportLogAction->setStatusTip(tr("导出点云处理日志"));
 
-  //鏃嬭浆270掳
-  rotate270Action = new QAction(QIcon("rotate270.png"), tr("测试"), this);
-  rotate270Action->setStatusTip(tr("测试"));
+  //导出屏幕截图
+  snapShotAction =
+    new QAction(QIcon(":/images/files/snapshot.png"), tr("导出屏幕截图"), this);
+  snapShotAction->setStatusTip(tr("导出屏幕截图"));
 
-  //瀹炵幇鍥惧儚闀滃儚鐨勫姩浣滐紙Action锛?
-  //绾靛悜闀滃儚
-  mirrorVerticalAction =
-    new QAction(QIcon("mirrorVertical.png"), tr("测试"), this);
-  mirrorVerticalAction->setStatusTip(tr("测试?"));
+  //离群点移除
+  outliersRemoveAction = new QAction(
+    QIcon(":/images/algorithm/KMeans.png"), tr("outliersRemove"), this);
+  outliersRemoveAction->setStatusTip(tr("outliersRemove"));
 
-  //妯悜闀滃儚
-  mirrorHorizontalAction =
-    new QAction(QIcon("mirrorHorizontal.png"), tr("测试"), this);
-  mirrorHorizontalAction->setStatusTip(tr("测试?"));
+  //滤波平滑
+  filterAction =
+    new QAction(QIcon(":/images/algorithm/filter.png"), tr("滤波平滑"), this);
+  filterAction->setStatusTip(tr("滤波平滑"));
 
-  //鎺掑簭锛氬乏瀵归綈銆佸彸瀵归綈銆佸眳涓拰涓ょ瀵归綈
-  actGrp = new QActionGroup(this);
-  leftAction = new QAction(QIcon("left.png"), "测试?", actGrp);
-  leftAction->setCheckable(true);
-  rightAction = new QAction(QIcon("right.png"), "测试?", actGrp);
-  rightAction->setCheckable(true);
-  centerAction = new QAction(QIcon("center.png"), "测试", actGrp);
-  centerAction->setCheckable(true);
-  justifyAction = new QAction(QIcon("justify.png"), "测试", actGrp);
-  justifyAction->setCheckable(true);
+  //点云下采样
+  downSampleAction =
+    new QAction(QIcon(":/images/algorithm/density.png"), "downSampling", this);
+  downSampleAction->setStatusTip(tr("downSampling"));
 
-  //瀹炵幇鎾ら攢鍜屾仮澶嶇殑鍔ㄤ綔锛圓ction锛?
-  //鎾ら攢鍜屾仮澶?
-  undoAction = new QAction(QIcon("undo.png"), "测试", this);
-  redoAction = new QAction(QIcon("redo.png"), "测试", this);
+  //点云拼接
+  cloudSpliceAction =
+    new QAction(QIcon(":/images/algorithm/pingjie.png"), "点云拼接", this);
+  cloudSpliceAction->setStatusTip(tr("点云拼接"));
+
+  //点云直方图
+  HistogramAction =
+    new QAction(QIcon(":/images/algorithm/Histogram.png"), "Histogram", this);
+  HistogramAction->setStatusTip(tr("Histogram"));
+
+  //表面重建
+  surfaceAction =
+    new QAction(QIcon(":/images/algorithm/matrix.png"), "surface", this);
+  surfaceAction->setStatusTip(tr("surface"));
+
+  //点云配准
+  alignAction =
+    new QAction(QIcon(":/images/algorithm/DBSCAN.png"), "点云配准", this);
+  alignAction->setStatusTip(tr("点云配准"));
+  // MLS细化
+  MLSAction =
+    new QAction(QIcon(":/images/algorithm/nihe.png"), "MLS细化", this);
+  MLSAction->setStatusTip(tr("MLS细化"));
 }
 
 void
 PCLVisualizer::createMenus()
 {
-  //鏂囦欢鑿滃崟
+  //文件管理菜单
   fileMenu = menuBar()->addMenu(tr("测试")); //(a)
-  fileMenu->addAction(openFileAction);       //(b)
-  fileMenu->addAction(NewFileAction);
-  fileMenu->addAction(PrintTextAction);
-  fileMenu->addAction(PrintImageAction);
+  fileMenu->addAction(addCloudAction);       //(b)
+  fileMenu->addAction(newWorkStationAction);
+  fileMenu->addAction(exportCloud2PCDAction);
+  fileMenu->addAction(exportCloud2PLYAction);
   fileMenu->addSeparator();
-  fileMenu->addAction(exitAction);
+  fileMenu->addAction(newCloudAction);
   //缂╂斁鑿滃崟
   zoomMenu = menuBar()->addMenu(tr("测试"));
-  zoomMenu->addAction(copyAction);
-  zoomMenu->addAction(cutAction);
-  zoomMenu->addAction(pasteAction);
-  zoomMenu->addAction(aboutAction);
+  zoomMenu->addAction(copyCloudAction);
+  zoomMenu->addAction(cutCloudAction);
+  zoomMenu->addAction(pasteCloudAction);
+  zoomMenu->addAction(searchCloudAction);
   zoomMenu->addSeparator();
-  zoomMenu->addAction(zoomInAction);
-  zoomMenu->addAction(zoomOutAction);
+  zoomMenu->addAction(export2CSVAction);
+  zoomMenu->addAction(export2TXTAction);
   //鏃嬭浆鑿滃崟
   rotateMenu = menuBar()->addMenu(tr("测试"));
-  rotateMenu->addAction(rotate90Action);
-  rotateMenu->addAction(rotate180Action);
-  rotateMenu->addAction(rotate270Action);
+  rotateMenu->addAction(starCloudAction);
+  rotateMenu->addAction(exportLogAction);
+  rotateMenu->addAction(snapShotAction);
   //闀滃儚鑿滃崟
   mirrorMenu = menuBar()->addMenu(tr("测试"));
-  mirrorMenu->addAction(mirrorVerticalAction);
-  mirrorMenu->addAction(mirrorHorizontalAction);
+  mirrorMenu->addAction(outliersRemoveAction);
+  mirrorMenu->addAction(filterAction);
 }
 
 void
 PCLVisualizer::createToolBars()
 {
-  //鏂囦欢宸ュ叿鏉?
-  fileTool = addToolBar("File");       //(a)
-  fileTool->addAction(openFileAction); //(b)
-  fileTool->addAction(NewFileAction);
-  fileTool->addAction(PrintTextAction);
-  fileTool->addAction(PrintImageAction);
-  //缂栬緫宸ュ叿鏉?
-  zoomTool = addToolBar("Edit");
-  zoomTool->addAction(copyAction);
-  zoomTool->addAction(cutAction);
-  zoomTool->addAction(pasteAction);
-  zoomTool->addSeparator();
-  zoomTool->addAction(zoomInAction);
-  zoomTool->addAction(zoomOutAction);
-  //鏃嬭浆宸ュ叿鏉?
-  rotateTool = addToolBar("rotate");
-  rotateTool->addAction(rotate90Action);
-  rotateTool->addAction(rotate180Action);
-  rotateTool->addAction(rotate270Action);
-  //鎾ら攢鍜岄噸鍋氬伐鍏锋潯
-  doToolBar = addToolBar("doEdit");
-  doToolBar->addAction(undoAction);
-  doToolBar->addAction(redoAction);
-  //瀛椾綋宸ュ叿鏉?
-  fontToolBar = addToolBar("Font");
-  fontToolBar->addWidget(fontLabel1);
-  fontToolBar->addWidget(fontComboBox);
-  fontToolBar->addWidget(fontLabel2);
-  fontToolBar->addWidget(sizeComboBox);
-  fontToolBar->addSeparator();
-  fontToolBar->addWidget(boldBtn);
-  fontToolBar->addWidget(italicBtn);
-  fontToolBar->addWidget(underlineBtn);
-  fontToolBar->addSeparator();
-  fontToolBar->addWidget(colorBtn);
-  //鎺掑簭宸ュ叿鏉?
-  listToolBar = addToolBar("list");
-  listToolBar->addWidget(listLabel);
-  listToolBar->addWidget(listComboBox);
-  listToolBar->addSeparator();
-  listToolBar->addActions(actGrp->actions());
+  //点云文件工具栏
+  fileTool = addToolBar("cloudFile");
+
+  fileTool->addAction(newWorkStationAction);
+  fileTool->addAction(addCloudAction);
+  fileTool->addAction(newCloudAction);
+  fileTool->addAction(copyCloudAction);
+  fileTool->addAction(cutCloudAction);
+  fileTool->addAction(pasteCloudAction);
+
+  fileTool->addSeparator();
+
+  fileTool->addAction(exportCloud2PCDAction);
+  fileTool->addAction(exportCloud2PLYAction);
+  fileTool->addAction(export2CSVAction);
+  fileTool->addAction(export2TXTAction);
+  fileTool->addAction(exportLogAction);
+  fileTool->addAction(snapShotAction);
+
+  fileTool->addSeparator();
+
+  fileTool->addAction(starCloudAction);
+  fileTool->addAction(searchCloudAction);
+
+  //算法工具栏
+  algorithmTool = addToolBar("algorithm");
+  algorithmTool->addAction(outliersRemoveAction);
+  algorithmTool->addAction(filterAction);
+  algorithmTool->addAction(alignAction);
+  algorithmTool->addAction(MLSAction);
+  algorithmTool->addAction(downSampleAction);
+  algorithmTool->addAction(cloudSpliceAction);
+  algorithmTool->addAction(HistogramAction);
+  algorithmTool->addAction(surfaceAction);
 }
 
 void
@@ -621,13 +640,6 @@ PCLVisualizer::colorCloudDistances()
           value < 128 ? 255 - (2 * value) : 0; // b[0] = 255, b[128] = 0
     }
   }
-}
-
-void
-PCLVisualizer::on_actionOpen_triggered()
-{
-  loadPCDFile();
-  // qDebug() << "on_actionOpen_triggered";
 }
 
 void

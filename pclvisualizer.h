@@ -116,7 +116,6 @@ protected:
   void colorCloudDistances();
 
 private slots:
-  void on_actionOpen_triggered();
 
   void on_actionUp_triggered();
 
@@ -158,47 +157,35 @@ private:
   QMenu* zoomMenu;
   QMenu* rotateMenu;
   QMenu* mirrorMenu;
-  QImage img;
+
   QString fileName;
-  QAction* openFileAction; //文件菜单项
-  QAction* NewFileAction;
-  QAction* PrintTextAction;
-  QAction* PrintImageAction;
-  QAction* exitAction;
-  QAction* copyAction; //编辑菜单项
-  QAction* cutAction;
-  QAction* pasteAction;
-  QAction* aboutAction;
-  QAction* zoomInAction;
-  QAction* zoomOutAction;
-  QAction* rotate90Action; //旋转菜单项
-  QAction* rotate180Action;
-  QAction* rotate270Action;
-  QAction* mirrorVerticalAction; //镜像菜单项
-  QAction* mirrorHorizontalAction;
-  QAction* undoAction;
-  QAction* redoAction;
+
+  //点云文件处理动作
+  QAction* addCloudAction;
+  QAction* newWorkStationAction;
+  QAction* exportCloud2PCDAction;
+  QAction* exportCloud2PLYAction;
+  QAction* newCloudAction;
+  QAction* copyCloudAction;
+  QAction* cutCloudAction;
+  QAction* pasteCloudAction;
+  QAction* searchCloudAction;
+  QAction* export2CSVAction;
+  QAction* export2TXTAction;
+  QAction* starCloudAction;
+  QAction* exportLogAction;
+  QAction* snapShotAction;
+
+  QAction* outliersRemoveAction; //镜像菜单项
+  QAction* filterAction;
+  QAction* alignAction;
+  QAction* MLSAction;
+  QAction* downSampleAction;
+  QAction* cloudSpliceAction;
+  QAction* HistogramAction;
+  QAction* surfaceAction;
+
   QToolBar* fileTool; //工具栏
-  QToolBar* zoomTool;
-  QToolBar* rotateTool;
-  QToolBar* mirrorTool;
-  QToolBar* doToolBar;
-  QLabel* fontLabel1; //字体设置项
-  QFontComboBox* fontComboBox;
-  QLabel* fontLabel2;
-  QComboBox* sizeComboBox;
-  QToolButton* boldBtn;
-  QToolButton* italicBtn;
-  QToolButton* underlineBtn;
-  QToolButton* colorBtn;
-  QToolBar* fontToolBar; //字体工具栏
-  QLabel* listLabel;     //排序设置项
-  QComboBox* listComboBox;
-  QActionGroup* actGrp;
-  QAction* leftAction;
-  QAction* rightAction;
-  QAction* centerAction;
-  QAction* justifyAction;
-  QToolBar* listToolBar; //排序工具栏
+  QToolBar* algorithmTool;
 };
 #endif // PCLVISUALIZER_H
