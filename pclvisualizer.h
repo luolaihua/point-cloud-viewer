@@ -91,6 +91,7 @@ protected:
   pcl::visualization::PCLVisualizer::Ptr viewer_;
   //创建一个共享指针用于保存点云
   PointCloudT::Ptr cloud_;
+
   /** @brief 坐标轴：0 = x | 1 = y | 2 = z */
   int filtering_axis_;
 
@@ -117,6 +118,7 @@ protected:
 
 private slots:
 
+  //工具栏中的视图选择工作 6个
   void on_actionUp_triggered();
 
   void on_actionBottom_triggered();
@@ -129,25 +131,8 @@ private slots:
 
   void on_actionRight_triggered();
 
+  //
   void on_actionInput_triggered();
-
-  void on_actionRotate0_triggered();
-
-  void on_actionRotate90_triggered();
-
-  void on_actionRotate270_triggered();
-
-  void on_actionRotate180_triggered();
-
-  void on_actionzoomIn_triggered();
-
-  void on_actionzoomOut_triggered();
-
-  void on_actionRedo_triggered();
-
-  void on_actionUndo_triggered();
-
-  void on_actionResetPos_triggered();
 
 private:
   Ui::PCLVisualizer* ui;

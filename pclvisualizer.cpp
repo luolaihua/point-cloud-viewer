@@ -26,7 +26,7 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   createToolBars();
 
   initPointCloud();
-  //璁剧疆QVTK绐楀彛
+  // 给QVTK配置PCLViewer显示
   viewer_.reset(new pcl::visualization::PCLVisualizer("viewer", false));
   viewer_->setBackgroundColor(255, 255, 255);
   ui->qvtkWidget->SetRenderWindow(viewer_->getRenderWindow());
@@ -521,9 +521,8 @@ PCLVisualizer::AddCoordinateSystem()
 void
 PCLVisualizer::colorCloudDistances()
 {
-  // 鎵惧埌琚€変腑鐨勫潗鏍囪酱涓婄殑鍧愭爣鐨勬渶澶у€煎拰鏈€灏忓€?
+
   double min, max;
-  // 鍏堣缃垵濮嬪€?
   switch (filtering_axis_) {
     case 0: // x
       min = cloud_->points[0].x;
@@ -785,58 +784,4 @@ void
 PCLVisualizer::on_actionInput_triggered()
 {
   inputDlg->show();
-}
-
-void
-PCLVisualizer::on_actionRotate0_triggered()
-{
-  qDebug() << "on_actionRotate0_triggered";
-}
-
-void
-PCLVisualizer::on_actionRotate90_triggered()
-{
-  qDebug() << "on_actionRotate90_triggered";
-}
-
-void
-PCLVisualizer::on_actionRotate270_triggered()
-{
-  qDebug() << "on_actionRotate270_triggered";
-}
-
-void
-PCLVisualizer::on_actionRotate180_triggered()
-{
-  qDebug() << "on_actionRotate180_triggered";
-}
-
-void
-PCLVisualizer::on_actionzoomIn_triggered()
-{
-  qDebug() << "on_actionzoomIn_triggered";
-}
-
-void
-PCLVisualizer::on_actionzoomOut_triggered()
-{
-  qDebug() << "on_actionzoomOut_triggered";
-}
-
-void
-PCLVisualizer::on_actionRedo_triggered()
-{
-  qDebug() << "on_actionRedo_triggered";
-}
-
-void
-PCLVisualizer::on_actionUndo_triggered()
-{
-  qDebug() << "on_actionUndo_triggered";
-}
-
-void
-PCLVisualizer::on_actionResetPos_triggered()
-{
-  qDebug() << "on_actionResetPos_triggered";
 }
