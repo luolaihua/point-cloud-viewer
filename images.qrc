@@ -56,5 +56,8 @@
         <file>images/zoomin.png</file>
         <file>images/zoomout.png</file>
         <file>images/help.png</file>
+        <file>images/rotate0.png</file>
+        <file>images/ic-redo.png</file>
+        <file>images/ic-undo.png</file>
     </qresource>
 </RCC>

@@ -11,9 +11,9 @@
 #include <QTextStream>
 PCLVisualizer::PCLVisualizer(QWidget* parent)
   : QMainWindow(parent)
-
-  , ui(new Ui::PCLVisualizer)
   , point_size(1)
+  , ui(new Ui::PCLVisualizer)
+
 {
   ui->setupUi(this);
   //  qDebug() << "666777888";
@@ -773,4 +773,58 @@ void
 PCLVisualizer::on_actionInput_triggered()
 {
   inputDlg->show();
+}
+
+void
+PCLVisualizer::on_actionRotate0_triggered()
+{
+  qDebug() << "on_actionRotate0_triggered";
+}
+
+void
+PCLVisualizer::on_actionRotate90_triggered()
+{
+  qDebug() << "on_actionRotate90_triggered";
+}
+
+void
+PCLVisualizer::on_actionRotate270_triggered()
+{
+  qDebug() << "on_actionRotate270_triggered";
+}
+
+void
+PCLVisualizer::on_actionRotate180_triggered()
+{
+  qDebug() << "on_actionRotate180_triggered";
+}
+
+void
+PCLVisualizer::on_actionzoomIn_triggered()
+{
+  qDebug() << "on_actionzoomIn_triggered";
+}
+
+void
+PCLVisualizer::on_actionzoomOut_triggered()
+{
+  qDebug() << "on_actionzoomOut_triggered";
+}
+
+void
+PCLVisualizer::on_actionRedo_triggered()
+{
+  qDebug() << "on_actionRedo_triggered";
+}
+
+void
+PCLVisualizer::on_actionUndo_triggered()
+{
+  qDebug() << "on_actionUndo_triggered";
+}
+
+void
+PCLVisualizer::on_actionResetPos_triggered()
+{
+  qDebug() << "on_actionResetPos_triggered";
 }

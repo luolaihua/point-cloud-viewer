@@ -132,6 +132,24 @@ private slots:
 
   void on_actionInput_triggered();
 
+  void on_actionRotate0_triggered();
+
+  void on_actionRotate90_triggered();
+
+  void on_actionRotate270_triggered();
+
+  void on_actionRotate180_triggered();
+
+  void on_actionzoomIn_triggered();
+
+  void on_actionzoomOut_triggered();
+
+  void on_actionRedo_triggered();
+
+  void on_actionUndo_triggered();
+
+  void on_actionResetPos_triggered();
+
 private:
   Ui::PCLVisualizer* ui;
   inputDialog* inputDlg;
