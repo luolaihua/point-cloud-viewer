@@ -1,8 +1,20 @@
-﻿#ifndef PCLVISUALIZER_H
+#ifndef PCLVISUALIZER_H
 #define PCLVISUALIZER_H
 
+#include <QAction>
+#include <QComboBox>
 #include <QFileDialog>
+#include <QFontComboBox>
+#include <QImage>
+#include <QLabel>
 #include <QMainWindow>
+#include <QMenu>
+#include <QMenuBar>
+#include <QSpinBox>
+#include <QTextCharFormat>
+#include <QToolBar>
+#include <QToolButton>
+
 // Point Cloud Library
 #include <pcl/common/common.h>
 #include <pcl/filters/filter.h>
@@ -19,6 +31,7 @@
 // Visualization Toolkit (VTK)
 #include <vtkRenderWindow.h>
 
+#include "inputdialog.h"
 //使用的点云格式
 typedef pcl::PointXYZRGBA PointT;
 // typedef pcl::PointXYZ PointT;
@@ -37,6 +50,10 @@ class PCLVisualizer : public QMainWindow
 public:
   PCLVisualizer(QWidget* parent = nullptr);
   ~PCLVisualizer();
+
+  void createActions();  //创建动作
+  void createMenus();    //创建菜单
+  void createToolBars(); //创建工具栏
 
   //点云坐标极值
   PointT p_min, p_max;
@@ -113,7 +130,57 @@ private slots:
 
   void on_actionRight_triggered();
 
+  void on_actionInput_triggered();
+
 private:
   Ui::PCLVisualizer* ui;
+  inputDialog* inputDlg;
+
+  QMenu* fileMenu; //各项菜单栏
+  QMenu* zoomMenu;
+  QMenu* rotateMenu;
+  QMenu* mirrorMenu;
+  QImage img;
+  QString fileName;
+  QAction* openFileAction; //文件菜单项
+  QAction* NewFileAction;
+  QAction* PrintTextAction;
+  QAction* PrintImageAction;
+  QAction* exitAction;
+  QAction* copyAction; //编辑菜单项
+  QAction* cutAction;
+  QAction* pasteAction;
+  QAction* aboutAction;
+  QAction* zoomInAction;
+  QAction* zoomOutAction;
+  QAction* rotate90Action; //旋转菜单项
+  QAction* rotate180Action;
+  QAction* rotate270Action;
+  QAction* mirrorVerticalAction; //镜像菜单项
+  QAction* mirrorHorizontalAction;
+  QAction* undoAction;
+  QAction* redoAction;
+  QToolBar* fileTool; //工具栏
+  QToolBar* zoomTool;
+  QToolBar* rotateTool;
+  QToolBar* mirrorTool;
+  QToolBar* doToolBar;
+  QLabel* fontLabel1; //字体设置项
+  QFontComboBox* fontComboBox;
+  QLabel* fontLabel2;
+  QComboBox* sizeComboBox;
+  QToolButton* boldBtn;
+  QToolButton* italicBtn;
+  QToolButton* underlineBtn;
+  QToolButton* colorBtn;
+  QToolBar* fontToolBar; //字体工具栏
+  QLabel* listLabel;     //排序设置项
+  QComboBox* listComboBox;
+  QActionGroup* actGrp;
+  QAction* leftAction;
+  QAction* rightAction;
+  QAction* centerAction;
+  QAction* justifyAction;
+  QToolBar* listToolBar; //排序工具栏
 };
 #endif // PCLVISUALIZER_H

@@ -425,8 +425,20 @@
     <property name="title">
      <string>文件</string>
     </property>
+    <widget class="QMenu" name="menu_9">
+     <property name="title">
+      <string>导出为</string>
+     </property>
+     <addaction name="actionPCD"/>
+     <addaction name="actionPLY"/>
+     <addaction name="actionTXT"/>
+     <addaction name="actionOBJ"/>
+     <addaction name="actionSTL"/>
+     <addaction name="actionPCAP"/>
+    </widget>
     <addaction name="actionload_point_cloud"/>
     <addaction name="actionsave_point_cloud"/>
+    <addaction name="menu_9"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -449,17 +461,56 @@
      <string>工具</string>
     </property>
     <addaction name="actionCoordinateSystem"/>
+    <addaction name="actionInput"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>离群点移除</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_4">
+    <property name="title">
+     <string>连接</string>
+    </property>
+    <addaction name="actionVelodyne_Lidar"/>
+    <addaction name="actionleishen"/>
+   </widget>
+   <widget class="QMenu" name="menu_5">
+    <property name="title">
+     <string>滤波</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_6">
+    <property name="title">
+     <string>配准</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_7">
+    <property name="title">
+     <string>表面重建</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menu_8">
+    <property name="title">
+     <string>帮助</string>
+    </property>
    </widget>
    <addaction name="menu"/>
-   <addaction name="menu_2"/>
+   <addaction name="menu_4"/>
    <addaction name="menuTools"/>
+   <addaction name="menu_3"/>
+   <addaction name="menu_5"/>
+   <addaction name="menu_6"/>
+   <addaction name="menu_7"/>
+   <addaction name="menu_2"/>
+   <addaction name="menu_8"/>
   </widget>
-<widget class="QToolBar" name="toolBar">
+  <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
    <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
+    <enum>LeftToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
     <bool>false</bool>
@@ -473,10 +524,11 @@
    <addaction name="actionLeft"/>
    <addaction name="actionRight"/>
   </widget>
+  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
    <property name="icon">
-    <iconset resource="PCLView.qrc">
-     <normaloff>:/PointCloud/image/open.png</normaloff>:/PointCloud/image/open.png</iconset>
+    <iconset resource="images.qrc">
+     <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
    </property>
    <property name="text">
     <string>打开</string>
@@ -484,8 +536,8 @@
   </action>
   <action name="actionUp">
    <property name="icon">
-    <iconset resource="PCLView.qrc">
-     <normaloff>:/PointCloud/image/up.png</normaloff>:/PointCloud/image/up.png</iconset>
+    <iconset resource="images.qrc">
+     <normaloff>:/images/up.png</normaloff>:/images/up.png</iconset>
    </property>
    <property name="text">
     <string>Up</string>
@@ -493,8 +545,8 @@
   </action>
   <action name="actionBottom">
    <property name="icon">
-    <iconset resource="PCLView.qrc">
-     <normaloff>:/PointCloud/image/bottom.png</normaloff>:/PointCloud/image/bottom.png</iconset>
+    <iconset resource="images.qrc">
+     <normaloff>:/images/bottom.png</normaloff>:/images/bottom.png</iconset>
    </property>
    <property name="text">
     <string>Bottom</string>
@@ -502,8 +554,8 @@
   </action>
   <action name="actionFront">
    <property name="icon">
-    <iconset resource="PCLView.qrc">
-     <normaloff>:/PointCloud/image/front.png</normaloff>:/PointCloud/image/front.png</iconset>
+    <iconset resource="images.qrc">
+     <normaloff>:/images/front.png</normaloff>:/images/front.png</iconset>
    </property>
    <property name="text">
     <string>Front</string>
@@ -511,8 +563,8 @@
   </action>
   <action name="actionBack">
    <property name="icon">
-    <iconset resource="PCLView.qrc">
-     <normaloff>:/PointCloud/image/back.png</normaloff>:/PointCloud/image/back.png</iconset>
+    <iconset resource="images.qrc">
+     <normaloff>:/images/back.png</normaloff>:/images/back.png</iconset>
    </property>
    <property name="text">
     <string>Back</string>
@@ -520,8 +572,8 @@
   </action>
   <action name="actionLeft">
    <property name="icon">
-    <iconset resource="PCLView.qrc">
-     <normaloff>:/PointCloud/image/left.png</normaloff>:/PointCloud/image/left.png</iconset>
+    <iconset resource="images.qrc">
+     <normaloff>:/images/left.png</normaloff>:/images/left.png</iconset>
    </property>
    <property name="text">
     <string>Left</string>
@@ -529,14 +581,13 @@
   </action>
   <action name="actionRight">
    <property name="icon">
-    <iconset resource="PCLView.qrc">
-     <normaloff>:/PointCloud/image/right.png</normaloff>:/PointCloud/image/right.png</iconset>
+    <iconset resource="images.qrc">
+     <normaloff>:/images/right.png</normaloff>:/images/right.png</iconset>
    </property>
    <property name="text">
     <string>Right</string>
    </property>
   </action>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionload_point_cloud">
    <property name="text">
     <string>加载点云</string>
@@ -607,6 +658,51 @@
     <string>CoordinateSystem [OFF]</string>
    </property>
   </action>
+  <action name="actionInput">
+   <property name="text">
+    <string>Input</string>
+   </property>
+  </action>
+  <action name="actionVelodyne_Lidar">
+   <property name="text">
+    <string>Velodyne Lidar</string>
+   </property>
+  </action>
+  <action name="actionleishen">
+   <property name="text">
+    <string>镭神</string>
+   </property>
+  </action>
+  <action name="actionPCD">
+   <property name="text">
+    <string>PCD</string>
+   </property>
+  </action>
+  <action name="actionPLY">
+   <property name="text">
+    <string>PLY</string>
+   </property>
+  </action>
+  <action name="actionTXT">
+   <property name="text">
+    <string>TXT</string>
+   </property>
+  </action>
+  <action name="actionOBJ">
+   <property name="text">
+    <string>OBJ</string>
+   </property>
+  </action>
+  <action name="actionSTL">
+   <property name="text">
+    <string>STL</string>
+   </property>
+  </action>
+  <action name="actionPCAP">
+   <property name="text">
+    <string>PCAP</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -615,6 +711,8 @@
    <header>QVTKWidget.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="images.qrc"/>
+ </resources>
  <connections/>
 </ui>

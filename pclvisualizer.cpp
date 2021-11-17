@@ -1,20 +1,32 @@
-﻿#include "pclvisualizer.h"
-
-#include <QDebug>
+#include "pclvisualizer.h"
 
 #include "./ui_pclvisualizer.h"
+#include <QColor>
+#include <QColorDialog>
+#include <QDebug>
+#include <QFile>
+#include <QFileDialog>
+#include <QPainter>
+#include <QTextList>
+#include <QTextStream>
 PCLVisualizer::PCLVisualizer(QWidget* parent)
   : QMainWindow(parent)
+
   , ui(new Ui::PCLVisualizer)
   , point_size(1)
 {
   ui->setupUi(this);
-  qDebug() << "666777888";
+  //  qDebug() << "666777888";
   QString str = "PointCloudViewer";
   this->setWindowTitle(str);
 
+  //  //创建动作，工具栏以及菜单栏
+  //  createActions();
+  //  createMenus();
+  //  createToolBars();
+
   initPointCloud();
-  //设置QVTK窗口
+  //璁剧疆QVTK绐楀彛
   viewer_.reset(new pcl::visualization::PCLVisualizer("viewer", false));
   viewer_->setBackgroundColor(255, 255, 255);
   ui->qvtkWidget->SetRenderWindow(viewer_->getRenderWindow());
@@ -41,6 +53,177 @@ PCLVisualizer::~PCLVisualizer()
 }
 
 void
+PCLVisualizer::createActions()
+{
+  //鈥滄墦寮€鈥濆姩浣?
+  openFileAction =
+    new QAction(QIcon(":/images/Excel_in.png"), "测试", this); //(a)
+  openFileAction->setShortcut(tr("Ctrl+O"));                   //(b)
+  openFileAction->setStatusTip(tr("测试"));                    //(c)
+
+  //鈥滄柊寤衡€濆姩浣?
+  NewFileAction = new QAction(QIcon("new.png"), tr("测试"), this);
+  NewFileAction->setShortcut(tr("Ctrl+N"));
+  NewFileAction->setStatusTip(tr("测试"));
+
+  //鈥滈€€鍑衡€濆姩浣?
+  exitAction = new QAction(tr("测试?"), this);
+  exitAction->setShortcut(tr("Ctrl+Q"));
+  exitAction->setStatusTip(tr("测试"));
+
+  //鈥滃鍒垛€濆姩浣?
+  copyAction = new QAction(QIcon("copy.png"), tr("测试"), this);
+  copyAction->setShortcut(tr("Ctrl+C"));
+  copyAction->setStatusTip(tr("测试"));
+
+  //鈥滃壀鍒団€濆姩浣?
+  cutAction = new QAction(QIcon("cut.png"), tr("测试"), this);
+  cutAction->setShortcut(tr("Ctrl+X"));
+  cutAction->setStatusTip(tr("测试"));
+
+  //鈥滅矘璐粹€濆姩浣?
+  pasteAction = new QAction(QIcon("paste.png"), tr("测试"), this);
+  pasteAction->setShortcut(tr("Ctrl+V"));
+  pasteAction->setStatusTip(tr("测试"));
+
+  //鈥滃叧浜庘€濆姩浣?
+  aboutAction = new QAction(tr("测试"), this);
+
+  //鈥滄墦鍗版枃鏈€濆姩浣?
+  PrintTextAction = new QAction(QIcon("printText.png"), tr("测试"), this);
+  PrintTextAction->setStatusTip(tr("测试"));
+
+  //鈥滄墦鍗板浘鍍忊€濆姩浣?
+  PrintImageAction = new QAction(QIcon("printImage.png"), tr("测试"), this);
+  PrintImageAction->setStatusTip(tr("测试"));
+
+  //鈥滄斁澶р€濆姩浣?
+  zoomInAction = new QAction(QIcon("zoomin.png"), tr("测试"), this);
+  zoomInAction->setStatusTip(tr("测试?"));
+
+  //鈥滅缉灏忊€濆姩浣?
+  zoomOutAction = new QAction(QIcon("zoomout.png"), tr("测试"), this);
+  zoomOutAction->setStatusTip(tr("测试?"));
+
+  //瀹炵幇鍥惧儚鏃嬭浆鐨勫姩浣滐紙Action锛?
+  //鏃嬭浆90掳
+  rotate90Action = new QAction(QIcon("rotate90.png"), tr("测试"), this);
+  rotate90Action->setStatusTip(tr("测试"));
+
+  //鏃嬭浆180掳
+  rotate180Action = new QAction(QIcon("rotate180.png"), tr("测试"), this);
+  rotate180Action->setStatusTip(tr("测试"));
+
+  //鏃嬭浆270掳
+  rotate270Action = new QAction(QIcon("rotate270.png"), tr("测试"), this);
+  rotate270Action->setStatusTip(tr("测试"));
+
+  //瀹炵幇鍥惧儚闀滃儚鐨勫姩浣滐紙Action锛?
+  //绾靛悜闀滃儚
+  mirrorVerticalAction =
+    new QAction(QIcon("mirrorVertical.png"), tr("测试"), this);
+  mirrorVerticalAction->setStatusTip(tr("测试?"));
+
+  //妯悜闀滃儚
+  mirrorHorizontalAction =
+    new QAction(QIcon("mirrorHorizontal.png"), tr("测试"), this);
+  mirrorHorizontalAction->setStatusTip(tr("测试?"));
+
+  //鎺掑簭锛氬乏瀵归綈銆佸彸瀵归綈銆佸眳涓拰涓ょ瀵归綈
+  actGrp = new QActionGroup(this);
+  leftAction = new QAction(QIcon("left.png"), "测试?", actGrp);
+  leftAction->setCheckable(true);
+  rightAction = new QAction(QIcon("right.png"), "测试?", actGrp);
+  rightAction->setCheckable(true);
+  centerAction = new QAction(QIcon("center.png"), "测试", actGrp);
+  centerAction->setCheckable(true);
+  justifyAction = new QAction(QIcon("justify.png"), "测试", actGrp);
+  justifyAction->setCheckable(true);
+
+  //瀹炵幇鎾ら攢鍜屾仮澶嶇殑鍔ㄤ綔锛圓ction锛?
+  //鎾ら攢鍜屾仮澶?
+  undoAction = new QAction(QIcon("undo.png"), "测试", this);
+  redoAction = new QAction(QIcon("redo.png"), "测试", this);
+}
+
+void
+PCLVisualizer::createMenus()
+{
+  //鏂囦欢鑿滃崟
+  fileMenu = menuBar()->addMenu(tr("测试")); //(a)
+  fileMenu->addAction(openFileAction);       //(b)
+  fileMenu->addAction(NewFileAction);
+  fileMenu->addAction(PrintTextAction);
+  fileMenu->addAction(PrintImageAction);
+  fileMenu->addSeparator();
+  fileMenu->addAction(exitAction);
+  //缂╂斁鑿滃崟
+  zoomMenu = menuBar()->addMenu(tr("测试"));
+  zoomMenu->addAction(copyAction);
+  zoomMenu->addAction(cutAction);
+  zoomMenu->addAction(pasteAction);
+  zoomMenu->addAction(aboutAction);
+  zoomMenu->addSeparator();
+  zoomMenu->addAction(zoomInAction);
+  zoomMenu->addAction(zoomOutAction);
+  //鏃嬭浆鑿滃崟
+  rotateMenu = menuBar()->addMenu(tr("测试"));
+  rotateMenu->addAction(rotate90Action);
+  rotateMenu->addAction(rotate180Action);
+  rotateMenu->addAction(rotate270Action);
+  //闀滃儚鑿滃崟
+  mirrorMenu = menuBar()->addMenu(tr("测试"));
+  mirrorMenu->addAction(mirrorVerticalAction);
+  mirrorMenu->addAction(mirrorHorizontalAction);
+}
+
+void
+PCLVisualizer::createToolBars()
+{
+  //鏂囦欢宸ュ叿鏉?
+  fileTool = addToolBar("File");       //(a)
+  fileTool->addAction(openFileAction); //(b)
+  fileTool->addAction(NewFileAction);
+  fileTool->addAction(PrintTextAction);
+  fileTool->addAction(PrintImageAction);
+  //缂栬緫宸ュ叿鏉?
+  zoomTool = addToolBar("Edit");
+  zoomTool->addAction(copyAction);
+  zoomTool->addAction(cutAction);
+  zoomTool->addAction(pasteAction);
+  zoomTool->addSeparator();
+  zoomTool->addAction(zoomInAction);
+  zoomTool->addAction(zoomOutAction);
+  //鏃嬭浆宸ュ叿鏉?
+  rotateTool = addToolBar("rotate");
+  rotateTool->addAction(rotate90Action);
+  rotateTool->addAction(rotate180Action);
+  rotateTool->addAction(rotate270Action);
+  //鎾ら攢鍜岄噸鍋氬伐鍏锋潯
+  doToolBar = addToolBar("doEdit");
+  doToolBar->addAction(undoAction);
+  doToolBar->addAction(redoAction);
+  //瀛椾綋宸ュ叿鏉?
+  fontToolBar = addToolBar("Font");
+  fontToolBar->addWidget(fontLabel1);
+  fontToolBar->addWidget(fontComboBox);
+  fontToolBar->addWidget(fontLabel2);
+  fontToolBar->addWidget(sizeComboBox);
+  fontToolBar->addSeparator();
+  fontToolBar->addWidget(boldBtn);
+  fontToolBar->addWidget(italicBtn);
+  fontToolBar->addWidget(underlineBtn);
+  fontToolBar->addSeparator();
+  fontToolBar->addWidget(colorBtn);
+  //鎺掑簭宸ュ叿鏉?
+  listToolBar = addToolBar("list");
+  listToolBar->addWidget(listLabel);
+  listToolBar->addWidget(listComboBox);
+  listToolBar->addSeparator();
+  listToolBar->addActions(actGrp->actions());
+}
+
+void
 PCLVisualizer::test()
 {
   qDebug() << "Hello World!";
@@ -49,6 +232,7 @@ PCLVisualizer::test()
 void
 PCLVisualizer::initPointCloud()
 {
+  inputDlg = new inputDialog(this);
   // Setup the cloud pointer
   cloud_.reset(new PointCloudT);
   // The number of points in the cloud
@@ -167,9 +351,9 @@ PCLVisualizer::loadPCDFile()
                                  tr("Point cloud data (*.pcd *.ply)"));
 
   PCL_WARN("File chosen: %s\n", filename.toStdString().c_str());
-  //创建一个临时的指针保存加载的点云数据
+  //鍒涘缓涓€涓复鏃剁殑鎸囬拡淇濆瓨鍔犺浇鐨勭偣浜戞暟鎹?
   PointCloudT::Ptr cloud_tmp(new PointCloudT);
-  //如果为空，直接返回
+  //濡傛灉涓虹┖锛岀洿鎺ヨ繑鍥?
   if (filename.isEmpty())
     return;
 
@@ -188,7 +372,7 @@ PCLVisualizer::loadPCDFile()
   // visualizer point cloud
   //    True if no points are invalid (e.g., have NaN or Inf values in any of
   //    their floating point fields).
-  //如果没有无效的点（如NAN，无效或非法的点），返回true
+  //濡傛灉娌℃湁鏃犳晥鐨勭偣锛堝NAN锛屾棤鏁堟垨闈炴硶鐨勭偣锛夛紝杩斿洖true
   if (cloud_tmp->is_dense)
     pcl::copyPointCloud(*cloud_tmp, *cloud_);
   else {
@@ -198,7 +382,7 @@ PCLVisualizer::loadPCDFile()
   }
   qDebug() << "The number of points :" << cloud_->points.size();
 
-  //由于加载的点云不一定是带颜色的，透明的默认为0，所以要将透明的改成最大，255
+  //鐢变簬鍔犺浇鐨勭偣浜戜笉涓€瀹氭槸甯﹂鑹茬殑锛岄€忔槑鐨勯粯璁や负0锛屾墍浠ヨ灏嗛€忔槑鐨勬敼鎴愭渶澶э紝255
   for (PointCloudT::iterator cloud_it = cloud_->begin();
        cloud_it != cloud_->end();
        ++cloud_it) {
@@ -318,9 +502,9 @@ PCLVisualizer::AddCoordinateSystem()
 void
 PCLVisualizer::colorCloudDistances()
 {
-  // 找到被选中的坐标轴上的坐标的最大值和最小值
+  // 鎵惧埌琚€変腑鐨勫潗鏍囪酱涓婄殑鍧愭爣鐨勬渶澶у€煎拰鏈€灏忓€?
   double min, max;
-  // 先设置初始值
+  // 鍏堣缃垵濮嬪€?
   switch (filtering_axis_) {
     case 0: // x
       min = cloud_->points[0].x;
@@ -442,10 +626,10 @@ PCLVisualizer::colorCloudDistances()
 void
 PCLVisualizer::on_actionOpen_triggered()
 {
-  qDebug() << "on_actionOpen_triggered";
+  loadPCDFile();
+  // qDebug() << "on_actionOpen_triggered";
 }
 
-//俯视图
 void
 PCLVisualizer::on_actionUp_triggered()
 {
@@ -583,4 +767,10 @@ PCLVisualizer::getMaxValue(PointT p1, PointT p2)
   }
 
   return max;
+}
+
+void
+PCLVisualizer::on_actionInput_triggered()
+{
+  inputDlg->show();
 }

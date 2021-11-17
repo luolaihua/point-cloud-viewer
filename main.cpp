@@ -1,12 +1,15 @@
 #include "pclvisualizer.h"
 
 #include <QApplication>
+#include <QTextCodec>
 #include <vtkOutputWindow.h>
-int main(int argc, char *argv[])
+int
+main(int argc, char* argv[])
 {
-	vtkOutputWindow::SetGlobalWarningDisplay(0);//不弹出vtkOutputWindow窗口
-    QApplication a(argc, argv);
-    PCLVisualizer w;
-    w.show();
-    return a.exec();
+  //    QTextCodec::setCodecForCStrings(QTextCodec::codecForName("GB2312"));
+  vtkOutputWindow::SetGlobalWarningDisplay(0); //不弹出vtkOutputWindow窗口
+  QApplication a(argc, argv);
+  PCLVisualizer w;
+  w.show();
+  return a.exec();
 }

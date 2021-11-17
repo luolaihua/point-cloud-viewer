@@ -30,7 +30,13 @@ set(PROJECT_SOURCES
         pclvisualizer.cpp
         pclvisualizer.h
         pclvisualizer.ui
-		image.qrc
+        # 测试
+        inputdialog.h
+        inputdialog.cpp
+        inputdialog.ui
+                images.qrc
+		logo.rc
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
