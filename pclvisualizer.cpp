@@ -337,7 +337,7 @@ PCLVisualizer::connectSS()
           &QRadioButton::clicked,
           this,
           &PCLVisualizer::chooseColorMode);
-
+  //增加新工作台功能
   connect(newWorkStationAction,
           &QAction::triggered,
           this,
