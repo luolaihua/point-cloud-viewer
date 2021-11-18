@@ -20,6 +20,12 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   QString str = "PointCloudViewer";
   this->setWindowTitle(str);
 
+  ui->logList->insertItem(0, tr("PointCloudViewer"));
+  ui->logList->insertItem(1, tr("PointCloudViewer"));
+  ui->logList->insertItem(2, tr("PointCloudViewer"));
+  ui->logList->insertItem(3, tr("PointCloudViewer"));
+  ui->logList->insertItem(4, tr("PointCloudViewer"));
+
   //  //创建动作，工具栏以及菜单栏
   createActions();
   //    createMenus();
@@ -331,6 +337,11 @@ PCLVisualizer::connectSS()
           &QRadioButton::clicked,
           this,
           &PCLVisualizer::chooseColorMode);
+
+  connect(newWorkStationAction,
+          &QAction::triggered,
+          this,
+          &PCLVisualizer::newWorkStation);
 }
 
 void
@@ -778,6 +789,13 @@ PCLVisualizer::getMaxValue(PointT p1, PointT p2)
   }
 
   return max;
+}
+
+void
+PCLVisualizer::newWorkStation()
+{
+  PCLVisualizer* newPCV = new PCLVisualizer;
+  newPCV->show();
 }
 
 void

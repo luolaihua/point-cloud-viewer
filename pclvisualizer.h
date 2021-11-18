@@ -64,6 +64,10 @@ public:
   double getMaxValue(PointT p1, PointT p2);
 
 public slots:
+
+  //新建工作台
+  void newWorkStation();
+
   void test();
   //初始化数据
   void initPointCloud();
