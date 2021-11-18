@@ -56,5 +56,8 @@
         <file>images/algorithm/extract.png</file>
         <file>images/seting.png</file>
         <file>images/coodinate.png</file>
+        <file>images/grey.png</file>
+        <file>images/RGB.png</file>
+        <file>images/files/bgColor.png</file>
     </qresource>
 </RCC>

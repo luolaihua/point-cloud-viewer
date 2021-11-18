@@ -3,7 +3,9 @@
 
 #include <QAction>
 #include <QCloseEvent>
+#include <QColor>
 #include <QComboBox>
+#include <QDateTime>
 #include <QDebug>
 #include <QDesktopWidget>
 #include <QFileDialog>
@@ -55,7 +57,7 @@ class PCLVisualizer : public QMainWindow
 public:
   PCLVisualizer(QWidget* parent = nullptr);
   ~PCLVisualizer();
-
+  QString logStr;
   void createActions();  //创建动作
   void createMenus();    //创建菜单
   void createToolBars(); //创建工具栏
@@ -142,12 +144,13 @@ private slots:
 
   void on_actionRight_triggered();
 
-  //
-  void on_actionInput_triggered();
+  void on_actionBGColor_triggered();
 
 private:
   Ui::PCLVisualizer* ui;
   inputDialog* inputDlg;
+
+  QColor bgColor;
 
   QMenu* fileMenu; //各项菜单栏
   QMenu* zoomMenu;

@@ -13,18 +13,16 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   : QMainWindow(parent)
   , point_size(1)
   , ui(new Ui::PCLVisualizer)
+  , bgColor(60, 80, 100)
 
 {
   ui->setupUi(this);
 
   QString str = "PointCloudViewer";
   this->setWindowTitle(str);
-
-  ui->logList->insertItem(0, tr("PointCloudViewer"));
-  ui->logList->insertItem(1, tr("PointCloudViewer"));
-  ui->logList->insertItem(2, tr("PointCloudViewer"));
-  ui->logList->insertItem(3, tr("PointCloudViewer"));
-  ui->logList->insertItem(4, tr("PointCloudViewer"));
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " + "[MainWindow] " + "System initializing";
+  ui->logList->addItem(logStr);
 
   //  //创建动作，工具栏以及菜单栏
   createActions();
@@ -34,7 +32,11 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   initPointCloud();
   // 给QVTK配置PCLViewer显示
   viewer_.reset(new pcl::visualization::PCLVisualizer("viewer", false));
-  viewer_->setBackgroundColor(255, 255, 255);
+  //设置背景颜色
+  viewer_->setBackgroundColor(double(bgColor.red()) / 255,
+                              double(bgColor.green()) / 255,
+                              double(bgColor.blue()) / 255);
+
   ui->qvtkWidget->SetRenderWindow(viewer_->getRenderWindow());
   viewer_->setupInteractor(ui->qvtkWidget->GetInteractor(),
                            ui->qvtkWidget->GetRenderWindow());
@@ -42,6 +44,7 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   connectSS();
 
   // Color the randomly generated cloud
+  // 以随机颜色填充点云
   colorCloudDistances();
 
   viewer_->addPointCloud(cloud_, "cloud");
@@ -51,6 +54,10 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   viewer_->resetCamera();
   viewer_->setLookUpTableID("cloud");
   ui->qvtkWidget->update();
+
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " + "[MainWindow] " + "System initialize done";
+  ui->logList->addItem(logStr);
 }
 
 PCLVisualizer::~PCLVisualizer()
@@ -235,6 +242,7 @@ PCLVisualizer::createToolBars()
 
   fileTool->addAction(starCloudAction);
   fileTool->addAction(searchCloudAction);
+  fileTool->addAction(ui->actionBGColor);
 
   //算法工具栏
   algorithmTool = addToolBar("algorithm");
@@ -257,11 +265,10 @@ PCLVisualizer::test()
 void
 PCLVisualizer::initPointCloud()
 {
-  inputDlg = new inputDialog(this);
   // Setup the cloud pointer
   cloud_.reset(new PointCloudT);
   // The number of points in the cloud
-  cloud_->resize(500);
+  cloud_->resize(800);
 
   // Fill the cloud with random points
   for (size_t i = 0; i < cloud_->points.size(); ++i) {
@@ -274,6 +281,7 @@ PCLVisualizer::initPointCloud()
   maxLen = getMaxValue(p_max, p_min);
 }
 
+//连接信号槽
 void
 PCLVisualizer::connectSS()
 {
@@ -374,51 +382,97 @@ PCLVisualizer::savePCDFile()
 void
 PCLVisualizer::loadPCDFile()
 {
-  QString filename =
+  QString fileFormat, fileName, fileBaseName, pointCount, filePath, fileSuffix;
+  QString filePathWithName =
     QFileDialog::getOpenFileName(this,
                                  tr("Open point cloud"),
                                  "/home/",
                                  tr("Point cloud data (*.pcd *.ply)"));
+  QFileInfo fileInfo;
+  fileInfo = QFileInfo(filePathWithName);
+  //文件名
+  fileName = fileInfo.fileName();
+  //文件后缀
+  fileSuffix = fileInfo.suffix();
+  //绝对路径
+  filePath = fileInfo.absolutePath();
+  fileBaseName = fileInfo.baseName();
+  qDebug() << fileName << endl
+           << fileSuffix << endl
+           << filePath << endl
+           << fileInfo.baseName() << endl
+           << fileInfo.completeBaseName();
 
-  PCL_WARN("File chosen: %s\n", filename.toStdString().c_str());
-  //鍒涘缓涓€涓复鏃剁殑鎸囬拡淇濆瓨鍔犺浇鐨勭偣浜戞暟鎹?
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " + "[fiel choosing] " + filePathWithName.toStdString().c_str();
+  ui->logList->addItem(logStr);
+  PCL_WARN("File chosen: %s\n", filePathWithName.toStdString().c_str());
+  //
   PointCloudT::Ptr cloud_tmp(new PointCloudT);
-  //濡傛灉涓虹┖锛岀洿鎺ヨ繑鍥?
-  if (filename.isEmpty())
+  //
+  if (filePathWithName.isEmpty()) {
+    logStr =
+      "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+      "] " + "[file load failed] " + filePathWithName.toStdString().c_str();
+    ui->logList->addItem(logStr);
     return;
+  }
+
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " + "[file load success] " +
+           filePathWithName.toStdString().c_str();
+  ui->logList->addItem(logStr);
 
   int return_status;
-  if (filename.endsWith(".pcd", Qt::CaseInsensitive))
-    return_status = pcl::io::loadPCDFile(filename.toStdString(), *cloud_tmp);
-  else
-    return_status = pcl::io::loadPLYFile(filename.toStdString(), *cloud_tmp);
+  if (filePathWithName.endsWith(".pcd", Qt::CaseInsensitive)) {
+    return_status =
+      pcl::io::loadPCDFile(filePathWithName.toStdString(), *cloud_tmp);
+    fileFormat = "PCD";
+  } else {
+    return_status =
+      pcl::io::loadPLYFile(filePathWithName.toStdString(), *cloud_tmp);
+    fileFormat = "PLY";
+  }
 
   if (return_status != 0) {
-    PCL_ERROR("Error reading point cloud %s\n", filename.toStdString().c_str());
+    PCL_ERROR("Error reading point cloud %s\n",
+              filePathWithName.toStdString().c_str());
     return;
   }
   PCL_WARN("file has loaded\n");
+
   // If point cloud contains NaN values, remove them before updating the
   // visualizer point cloud
   //    True if no points are invalid (e.g., have NaN or Inf values in any of
   //    their floating point fields).
-  //濡傛灉娌℃湁鏃犳晥鐨勭偣锛堝NAN锛屾棤鏁堟垨闈炴硶鐨勭偣锛夛紝杩斿洖true
-  if (cloud_tmp->is_dense)
+
+  if (cloud_tmp->is_dense) {
     pcl::copyPointCloud(*cloud_tmp, *cloud_);
-  else {
+  } else {
     PCL_WARN("Cloud is not dense! Non finite points will be removed\n");
     std::vector<int> vec;
     pcl::removeNaNFromPointCloud(*cloud_tmp, *cloud_, vec);
   }
   qDebug() << "The number of points :" << cloud_->points.size();
 
-  //鐢变簬鍔犺浇鐨勭偣浜戜笉涓€瀹氭槸甯﹂鑹茬殑锛岄€忔槑鐨勯粯璁や负0锛屾墍浠ヨ灏嗛€忔槑鐨勬敼鎴愭渶澶э紝255
+  //更新点云属性信息
+  ui->fileFormatEdt->setText(fileFormat);
+  ui->fileNameEdt->setText(fileInfo.baseName());
+  ui->pointCountEdt->setText(QString("%1").arg(cloud_->points.size()));
+  QString cloudFile = fileName + "[" + filePath + "]";
+  QListWidgetItem* item = new QListWidgetItem;
+  item->setData(Qt::DisplayRole, cloudFile);
+  item->setData(Qt::CheckStateRole, Qt::Checked);
+  ui->filesList->addItem(item);
+
+  //
   for (PointCloudT::iterator cloud_it = cloud_->begin();
        cloud_it != cloud_->end();
        ++cloud_it) {
-    //        qDebug() << cloud_it->_PointXYZRGBA::r << " " <<
-    //        cloud_it->_PointXYZRGBA::g << " " << cloud_it->_PointXYZRGBA::b
-    //                 << " " << cloud_it->_PointXYZRGBA::a;
+    //    qDebug() << cloud_it->_PointXYZRGBA::r << " " <<
+    //    cloud_it->_PointXYZRGBA::g
+    //             << " " << cloud_it->_PointXYZRGBA::b << " "
+    //             << cloud_it->_PointXYZRGBA::a;
     cloud_it->_PointXYZRGBA::a = 255;
   }
 
@@ -529,6 +583,7 @@ PCLVisualizer::AddCoordinateSystem()
   ui->qvtkWidget->update();
 }
 
+//软件关闭时动作
 void
 PCLVisualizer::closeEvent(QCloseEvent* event)
 {
@@ -819,7 +874,17 @@ PCLVisualizer::newWorkStation()
 }
 
 void
-PCLVisualizer::on_actionInput_triggered()
+PCLVisualizer::on_actionBGColor_triggered()
 {
-  inputDlg->show();
+  QColor color = QColorDialog::getColor(
+    bgColor, this); //打开颜色选择窗口，并用当前颜色初始化
+  if (color.isValid()) {
+    bgColor = color;
+    qDebug() << "color: " << bgColor.red() << " " << bgColor.green() << " "
+             << bgColor.blue();
+    viewer_->setBackgroundColor(double(bgColor.red()) / 255,
+                                double(bgColor.green()) / 255,
+                                double(bgColor.blue()) / 255);
+    ui->qvtkWidget->update();
+  }
 }
