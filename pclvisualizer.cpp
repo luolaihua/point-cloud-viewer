@@ -530,6 +530,23 @@ PCLVisualizer::AddCoordinateSystem()
 }
 
 void
+PCLVisualizer::closeEvent(QCloseEvent* event)
+{
+  //写ini文件，记录当前窗口位置和大小：
+  QString wstrFilePath =
+    qApp->applicationDirPath() +
+    "/setting.ini"; // in
+                    // windows，我的工程名为EditPic，二editpic.ini放在工程源文件目录下
+  QSettings* settings = new QSettings(
+    wstrFilePath, QSettings::IniFormat); //用QSetting获取ini文件中的数据
+  settings->clear();                     //清空当前配置文件中的内容
+  settings->setValue("WindowGeometry/x", this->x());
+  settings->setValue("WindowGeometry/y", this->y());
+  settings->setValue("WindowGeometry/width", this->width());
+  settings->setValue("WindowGeometry/height", this->height());
+}
+
+void
 PCLVisualizer::colorCloudDistances()
 {
 
@@ -795,6 +812,9 @@ void
 PCLVisualizer::newWorkStation()
 {
   PCLVisualizer* newPCV = new PCLVisualizer;
+  //新建的工作窗口位于之前窗口的右下方
+  newPCV->setGeometry(
+    this->x() + 20, this->y() + 50, this->width(), this->height());
   newPCV->show();
 }
 

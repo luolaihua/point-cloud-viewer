@@ -2,7 +2,10 @@
 #define PCLVISUALIZER_H
 
 #include <QAction>
+#include <QCloseEvent>
 #include <QComboBox>
+#include <QDebug>
+#include <QDesktopWidget>
 #include <QFileDialog>
 #include <QFontComboBox>
 #include <QImage>
@@ -10,11 +13,13 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
+#include <QRect>
+#include <QSettings>
 #include <QSpinBox>
+#include <QString>
 #include <QTextCharFormat>
 #include <QToolBar>
 #include <QToolButton>
-
 // Point Cloud Library
 #include <pcl/common/common.h>
 #include <pcl/filters/filter.h>
@@ -89,6 +94,8 @@ public slots:
   void AddCoordinateSystem();
 
 protected:
+  virtual void closeEvent(QCloseEvent* event);
+
   int point_size;
   QColor point_color;
   //创建一个共享的PCLVisualizer 对象用于显示
