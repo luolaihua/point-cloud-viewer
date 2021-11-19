@@ -15,25 +15,26 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
+#include <QProgressDialog>
 #include <QRect>
 #include <QSettings>
 #include <QSpinBox>
 #include <QString>
 #include <QStringList>
 #include <QTextCharFormat>
+#include <QTime>
 #include <QToolBar>
 #include <QToolButton>
-
 // Point Cloud Library
+#include <QColorDialog>
 #include <pcl/common/common.h>
+#include <pcl/console/time.h> // TicToc
 #include <pcl/filters/filter.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
-
-#include <QColorDialog>
 // Boost
 #include <boost/math/special_functions/round.hpp>
 
@@ -72,6 +73,13 @@ public:
 
   double getMinValue(PointT p1, PointT p2);
   double getMaxValue(PointT p1, PointT p2);
+
+  // 打开进度窗口
+  void openProgressDlg(int num);
+
+  /************************************************************************/
+  /* 点云处理算法 */
+  /************************************************************************/
 
 public slots:
 
@@ -158,12 +166,32 @@ private slots:
 
   void on_actionCoordinateSystem_triggered();
 
+  void on_actionCameraview_triggered();
+
+  void on_pointSizeEdt_valueChanged(int arg1);
+
+  void on_actionbestSurface_triggered();
+
+  void on_actionbestRemoval_triggered();
+
+  void on_actionbestFiltering_triggered();
+
+  void on_actionbestRegistration_triggered();
+
+  void on_actionbestKeypoint_triggered();
+
+  void on_actionTXT_triggered();
+
+  void on_actionExportLog_triggered();
+
 private:
   Ui::PCLVisualizer* ui;
   inputDialog* inputDlg;
 
   QString logStr;
   QStringList logList;
+
+  QTime time;
 
   bool isRBGA;
 
@@ -189,7 +217,6 @@ private:
   QAction* export2CSVAction;
   QAction* export2TXTAction;
   QAction* starCloudAction;
-  QAction* exportLogAction;
   QAction* snapShotAction;
 
   QAction* outliersRemoveAction; //镜像菜单项

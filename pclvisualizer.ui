@@ -129,6 +129,7 @@
     <addaction name="actionsave_point_cloud"/>
     <addaction name="menu_9"/>
     <addaction name="separator"/>
+    <addaction name="actionExportLog"/>
     <addaction name="actioncloseAll"/>
     <addaction name="actionquit"/>
    </widget>
@@ -171,6 +172,7 @@
     <addaction name="actionDBSCAN_KD"/>
     <addaction name="actionKANN_DBSCAN"/>
     <addaction name="actionKANN_DBSCAN_KD"/>
+    <addaction name="actionbestRemoval"/>
    </widget>
    <widget class="QMenu" name="menu_4">
     <property name="title">
@@ -194,6 +196,7 @@
     <addaction name="actionBilateral"/>
     <addaction name="actionConditionalRemoval"/>
     <addaction name="actionMedian_2"/>
+    <addaction name="actionbestFiltering"/>
    </widget>
    <widget class="QMenu" name="menu_6">
     <property name="title">
@@ -208,8 +211,9 @@
     <addaction name="actionGICP"/>
     <addaction name="actionMBICP"/>
     <addaction name="actionSAC_IA"/>
+    <addaction name="actionbestRegistration"/>
    </widget>
-   <widget class="QMenu" name="menu_7">
+   <widget class="QMenu" name="menu_surface">
     <property name="title">
      <string>表面重建</string>
     </property>
@@ -219,6 +223,8 @@
     <addaction name="actionNURBS"/>
     <addaction name="actionRBF"/>
     <addaction name="actionblobby"/>
+    <addaction name="separator"/>
+    <addaction name="actionbestSurface"/>
    </widget>
    <widget class="QMenu" name="menu_8">
     <property name="title">
@@ -249,6 +255,7 @@
     <addaction name="actionNarfKeypoint"/>
     <addaction name="actionSIFTKeypoint"/>
     <addaction name="actionSUSANKeypoint"/>
+    <addaction name="actionbestKeypoint"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_4"/>
@@ -258,7 +265,7 @@
    <addaction name="menu_5"/>
    <addaction name="menu_6"/>
    <addaction name="menu_12"/>
-   <addaction name="menu_7"/>
+   <addaction name="menu_surface"/>
    <addaction name="menu_2"/>
    <addaction name="menu_8"/>
   </widget>
@@ -501,7 +508,7 @@
          <item row="10" column="0" colspan="2">
           <widget class="QTabWidget" name="tabWidget_2">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="tab_3">
             <attribute name="title">
@@ -510,11 +517,15 @@
             <layout class="QGridLayout" name="gridLayout_3">
              <item row="0" column="0">
               <widget class="QPlainTextEdit" name="plainTextEdit">
+               <property name="frameShape">
+                <enum>QFrame::Box</enum>
+               </property>
                <property name="plainText">
-                <string>1.000000 0.000000 0.000000 0.000000
-0.000000 1.000000 0.000000 0.000000
-0.000000 0.000000 1.000000 0.000000
-0.000000 0.000000 0.000000 1.000000</string>
+                <string>1.00 0.00 0.00 0.00
+0.00 1.00 0.00 0.00
+0.00 0.00 1.00 0.00
+0.00 0.00 0.00 1.00
+</string>
                </property>
               </widget>
              </item>
@@ -831,9 +842,9 @@
           <widget class="QWidget" name="widget" native="true">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
-             <widget class="QPushButton" name="pushButton_inc">
+             <widget class="QPushButton" name="pushButton_dec">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -852,7 +863,7 @@
                </font>
               </property>
               <property name="text">
-               <string>+</string>
+               <string>-</string>
               </property>
              </widget>
             </item>
@@ -887,9 +898,9 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_dec">
+             <widget class="QPushButton" name="pushButton_inc">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -908,7 +919,7 @@
                </font>
               </property>
               <property name="text">
-               <string>-</string>
+               <string>+</string>
               </property>
              </widget>
             </item>
@@ -1088,6 +1099,10 @@
    </property>
   </action>
   <action name="actionTXT">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/files/txt.png</normaloff>:/images/files/txt.png</iconset>
+   </property>
    <property name="text">
     <string>TXT</string>
    </property>
@@ -1541,6 +1556,60 @@ p, li { white-space: pre-wrap; }
   <action name="actiondownSampling">
    <property name="text">
     <string>下采样</string>
+   </property>
+  </action>
+  <action name="actionbestRemoval">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/algorithm/KMeans.png</normaloff>:/images/algorithm/KMeans.png</iconset>
+   </property>
+   <property name="text">
+    <string> 一键移除</string>
+   </property>
+  </action>
+  <action name="actionbestFiltering">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/algorithm/filter.png</normaloff>:/images/algorithm/filter.png</iconset>
+   </property>
+   <property name="text">
+    <string>一键滤波</string>
+   </property>
+  </action>
+  <action name="actionbestRegistration">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/algorithm/pingjie.png</normaloff>:/images/algorithm/pingjie.png</iconset>
+   </property>
+   <property name="text">
+    <string>一键配准</string>
+   </property>
+  </action>
+  <action name="actionbestKeypoint">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/algorithm/binary.png</normaloff>:/images/algorithm/binary.png</iconset>
+   </property>
+   <property name="text">
+    <string>一键提取</string>
+   </property>
+  </action>
+  <action name="actionbestSurface">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/algorithm/matrix.png</normaloff>:/images/algorithm/matrix.png</iconset>
+   </property>
+   <property name="text">
+    <string> 一键重建</string>
+   </property>
+  </action>
+  <action name="actionExportLog">
+   <property name="icon">
+    <iconset resource="images.qrc">
+     <normaloff>:/images/files/log.png</normaloff>:/images/files/log.png</iconset>
+   </property>
+   <property name="text">
+    <string>处理日志导出</string>
    </property>
   </action>
  </widget>
