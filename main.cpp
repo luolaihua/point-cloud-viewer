@@ -10,6 +10,21 @@
 int
 main(int argc, char* argv[])
 {
+//设置中文编码
+#if (QT_VERSION <= QT_VERSION_CHECK(5, 0, 0))
+
+#if _MSC_VER
+  QTextCodec* codec = QTextCodec::codecForName("gbk");
+#else
+  QTextCodec* codec = QTextCodec::codecForName("utf-8");
+#endif
+  QTextCodec::setCodecForLocale(codec);
+  QTextCodec::setCodecForCStrings(codec);
+  QTextCodec::setCodecForTr(codec);
+#else
+  QTextCodec* codec = QTextCodec::codecForName("utf-8");
+  QTextCodec::setCodecForLocale(codec);
+#endif
   vtkOutputWindow::SetGlobalWarningDisplay(0); //不弹出vtkOutputWindow窗口
   QApplication a(argc, argv);
 
@@ -30,6 +45,7 @@ main(int argc, char* argv[])
   //  }
 
   //读取ini文件中上一次关闭软件时候的窗口位置和大小：
+  qDebug() << qApp->applicationDirPath() << endl;
   QString wstrFilePath = qApp->applicationDirPath() + "/setting.ini";
   QSettings* settings = new QSettings(
     wstrFilePath, QSettings::IniFormat); //用QSetting获取ini文件中的数据
@@ -37,6 +53,8 @@ main(int argc, char* argv[])
   int y = settings->value("WindowGeometry/y").toInt();
   int width = settings->value("WindowGeometry/width").toInt();
   int height = settings->value("WindowGeometry/height").toInt();
+  qDebug() << "Position is right:" << x << " " << y << " " << width << " "
+           << height;
   QDesktopWidget* desktopWidget = QApplication::desktop();
   QRect clientRect = desktopWidget->availableGeometry();
   QRect targRect0 = QRect(clientRect.width() / 4,

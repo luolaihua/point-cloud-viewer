@@ -13,23 +13,45 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   : QMainWindow(parent)
   , point_size(1)
   , ui(new Ui::PCLVisualizer)
-  , bgColor(60, 80, 100)
+  , bgColor(0, 0, 50)
+  , isRBGA(true)
 
 {
   ui->setupUi(this);
 
+  //设置窗口名称
   QString str = "PointCloudViewer";
   this->setWindowTitle(str);
+
+  //--------------------LOG--------------------------
   logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " + "[MainWindow] " + "System initializing";
+           "] " + "[PCV System] " + "System is initializing";
+  logList.push_back(logStr);
   ui->logList->addItem(logStr);
+  int x = this->x();
+  int y = this->y();
+  int width = this->width();
+  int height = this->height();
+
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " + "[PCV System] " + "Restoring MainWindow Properties: " +
+           QString("X-Y-Width-Height(%1,%2,%3,%4)")
+             .arg(x)
+             .arg(y)
+             .arg(width)
+             .arg(height);
+  logList.push_back(logStr);
+  ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
 
   //  //创建动作，工具栏以及菜单栏
   createActions();
   //    createMenus();
   createToolBars();
 
+  //初始化点云数据
   initPointCloud();
+
   // 给QVTK配置PCLViewer显示
   viewer_.reset(new pcl::visualization::PCLVisualizer("viewer", false));
   //设置背景颜色
@@ -47,7 +69,14 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   // 以随机颜色填充点云
   colorCloudDistances();
 
-  viewer_->addPointCloud(cloud_, "cloud");
+  if (isRBGA) {
+    viewer_->addPointCloud(cloudRGBA_, "cloud");
+  } else {
+    viewer_->addPointCloud(cloud_, "cloud");
+  }
+  ////viewer_->addPointCloud(cloud_, "cloud");
+  // viewer_->addPointCloud(cloudRGBA_, "cloud");
+
   viewer_->setPointCloudRenderingProperties(
     pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size);
   // viewer_->addCoordinateSystem(1);
@@ -55,9 +84,12 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   viewer_->setLookUpTableID("cloud");
   ui->qvtkWidget->update();
 
+  //--------------------LOG--------------------------
   logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " + "[MainWindow] " + "System initialize done";
+           "] " + "[PCV System] " + "System Initialize Done";
+  logList.push_back(logStr);
   ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
 }
 
 PCLVisualizer::~PCLVisualizer()
@@ -267,9 +299,10 @@ PCLVisualizer::initPointCloud()
 {
   // Setup the cloud pointer
   cloud_.reset(new PointCloudT);
+  cloudRGBA_.reset(new PointCloudTRGBA);
   // The number of points in the cloud
   cloud_->resize(800);
-
+  cloudRGBA_->resize(800);
   // Fill the cloud with random points
   for (size_t i = 0; i < cloud_->points.size(); ++i) {
     cloud_->points[i].x = 1024 * rand() / (RAND_MAX + 1.0f);
@@ -279,6 +312,15 @@ PCLVisualizer::initPointCloud()
 
   pcl::getMinMax3D(*cloud_, p_min, p_max);
   maxLen = getMaxValue(p_max, p_min);
+
+  //拷贝一份给RGBA点云
+  pcl::copyPointCloud(*cloud_, *cloudRGBA_);
+
+  //--------------------LOG--------------------------
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " + "[PCV MainWindow] " + "Point Cloud Initialize Done.";
+  ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
 }
 
 //连接信号槽
@@ -383,10 +425,11 @@ void
 PCLVisualizer::loadPCDFile()
 {
   QString fileFormat, fileName, fileBaseName, pointCount, filePath, fileSuffix;
+  //读取文件名
   QString filePathWithName =
     QFileDialog::getOpenFileName(this,
                                  tr("Open point cloud"),
-                                 "/home/",
+                                 "E:/BaiduNetdiskWorkspace/Paper-of-Luo/PCD",
                                  tr("Point cloud data (*.pcd *.ply)"));
   QFileInfo fileInfo;
   fileInfo = QFileInfo(filePathWithName);
@@ -397,49 +440,82 @@ PCLVisualizer::loadPCDFile()
   //绝对路径
   filePath = fileInfo.absolutePath();
   fileBaseName = fileInfo.baseName();
-  qDebug() << fileName << endl
-           << fileSuffix << endl
-           << filePath << endl
-           << fileInfo.baseName() << endl
-           << fileInfo.completeBaseName();
+  // qDebug() << fileName << endl
+  //         << fileSuffix << endl
+  //         << filePath << endl
+  //         << fileInfo.baseName() << endl
+  //         << fileInfo.completeBaseName();
 
+  //--------------------LOG--------------------------
   logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " + "[fiel choosing] " + filePathWithName.toStdString().c_str();
+           "] " + "[Cloud File Choosed] " + filePathWithName;
+  logList.push_back(logStr);
   ui->logList->addItem(logStr);
-  PCL_WARN("File chosen: %s\n", filePathWithName.toStdString().c_str());
-  //
+  PCL_INFO("File chosen: %s\n", filePathWithName.toStdString().c_str());
+  //--------------------LOG--------------------------
+
   PointCloudT::Ptr cloud_tmp(new PointCloudT);
-  //
+
   if (filePathWithName.isEmpty()) {
-    logStr =
-      "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-      "] " + "[file load failed] " + filePathWithName.toStdString().c_str();
+    //--------------------LOG--------------------------
+    logStr = "[" +
+             QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+             "] " + "[File Load Failed] " + filePathWithName;
+    logList.push_back(logStr);
     ui->logList->addItem(logStr);
+    //--------------------LOG--------------------------
     return;
   }
 
+  //--------------------LOG--------------------------
   logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " + "[file load success] " +
-           filePathWithName.toStdString().c_str();
+           "] " + "[File Load Success] " + filePathWithName;
+  logList.push_back(logStr);
   ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
 
+  //判断文件类型然后加载点云
   int return_status;
   if (filePathWithName.endsWith(".pcd", Qt::CaseInsensitive)) {
     return_status =
       pcl::io::loadPCDFile(filePathWithName.toStdString(), *cloud_tmp);
     fileFormat = "PCD";
+
   } else {
     return_status =
       pcl::io::loadPLYFile(filePathWithName.toStdString(), *cloud_tmp);
     fileFormat = "PLY";
   }
 
+  //--------------------LOG--------------------------
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " + "[Cloud Loading] File Format is " + fileFormat;
+  logList.push_back(logStr);
+  ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
+
+  //判断是否加载成功
   if (return_status != 0) {
     PCL_ERROR("Error reading point cloud %s\n",
               filePathWithName.toStdString().c_str());
+
+    //--------------------LOG--------------------------
+    logStr = "[" +
+             QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+             "] " + "[Cloud Loading] Error reading point cloud";
+    logList.push_back(logStr);
+    ui->logList->addItem(logStr);
+    //--------------------LOG--------------------------
     return;
   }
-  PCL_WARN("file has loaded\n");
+  PCL_INFO("file has loaded\n");
+
+  //--------------------LOG--------------------------
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " + "[Cloud Load Done] " + fileName;
+  logList.push_back(logStr);
+  ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
 
   // If point cloud contains NaN values, remove them before updating the
   // visualizer point cloud
@@ -453,21 +529,32 @@ PCLVisualizer::loadPCDFile()
     std::vector<int> vec;
     pcl::removeNaNFromPointCloud(*cloud_tmp, *cloud_, vec);
   }
+  //将当前点云拷贝给RGBA点云
+  pcl::copyPointCloud(*cloud_, *cloudRGBA_);
+
+  //--------------------LOG--------------------------
   qDebug() << "The number of points :" << cloud_->points.size();
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " +
+           QString("[Cloud Info] Points Num : %1").arg(cloud_->points.size());
+  logList.push_back(logStr);
+  ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
 
   //更新点云属性信息
   ui->fileFormatEdt->setText(fileFormat);
   ui->fileNameEdt->setText(fileInfo.baseName());
   ui->pointCountEdt->setText(QString("%1").arg(cloud_->points.size()));
-  QString cloudFile = fileName + "[" + filePath + "]";
+  QString cloudFile = fileName + " [" + filePath + "]";
   QListWidgetItem* item = new QListWidgetItem;
+  item->setBackgroundColor(QColor(220, 230, 250));
   item->setData(Qt::DisplayRole, cloudFile);
   item->setData(Qt::CheckStateRole, Qt::Checked);
   ui->filesList->addItem(item);
 
-  //
-  for (PointCloudT::iterator cloud_it = cloud_->begin();
-       cloud_it != cloud_->end();
+  //初始化 A
+  for (PointCloudTRGBA::iterator cloud_it = cloudRGBA_->begin();
+       cloud_it != cloudRGBA_->end();
        ++cloud_it) {
     //    qDebug() << cloud_it->_PointXYZRGBA::r << " " <<
     //    cloud_it->_PointXYZRGBA::g
@@ -480,7 +567,12 @@ PCLVisualizer::loadPCDFile()
   maxLen = getMaxValue(p_max, p_min);
 
   colorCloudDistances();
-  viewer_->updatePointCloud(cloud_, "cloud");
+
+  if (isRBGA) {
+    viewer_->updatePointCloud(cloudRGBA_, "cloud");
+  } else {
+    viewer_->updatePointCloud(cloud_, "cloud");
+  }
   viewer_->resetCamera();
   ui->qvtkWidget->update();
 }
@@ -504,7 +596,11 @@ PCLVisualizer::chooseAxis()
   }
 
   colorCloudDistances();
-  viewer_->updatePointCloud(cloud_, "cloud");
+  if (isRBGA) {
+    viewer_->updatePointCloud(cloudRGBA_, "cloud");
+  } else {
+    viewer_->updatePointCloud(cloud_, "cloud");
+  }
   ui->qvtkWidget->update();
 }
 
@@ -539,7 +635,11 @@ PCLVisualizer::chooseColorMode()
   }
 
   colorCloudDistances();
-  viewer_->updatePointCloud(cloud_, "cloud");
+  if (isRBGA) {
+    viewer_->updatePointCloud(cloudRGBA_, "cloud");
+  } else {
+    viewer_->updatePointCloud(cloud_, "cloud");
+  }
   ui->qvtkWidget->update();
 }
 
@@ -599,6 +699,8 @@ PCLVisualizer::closeEvent(QCloseEvent* event)
   settings->setValue("WindowGeometry/y", this->y());
   settings->setValue("WindowGeometry/width", this->width());
   settings->setValue("WindowGeometry/height", this->height());
+  qDebug() << "Position is right:" << this->x() << " " << this->y() << " "
+           << this->width() << " " << this->height();
 }
 
 void
@@ -621,8 +723,8 @@ PCLVisualizer::colorCloudDistances()
       break;
   }
   // Search for the minimum/maximum
-  for (PointCloudT::iterator cloud_it = cloud_->begin();
-       cloud_it != cloud_->end();
+  for (PointCloudTRGBA::iterator cloud_it = cloudRGBA_->begin();
+       cloud_it != cloudRGBA_->end();
        ++cloud_it) {
     switch (filtering_axis_) {
       case 0: // x
@@ -655,8 +757,8 @@ PCLVisualizer::colorCloudDistances()
       max) // In case the cloud is flat on the chosen direction (x,y or z)
     lut_scale = 1.0; // Avoid rounding error in boost
 
-  for (PointCloudT::iterator cloud_it = cloud_->begin();
-       cloud_it != cloud_->end();
+  for (PointCloudTRGBA::iterator cloud_it = cloudRGBA_->begin();
+       cloud_it != cloudRGBA_->end();
        ++cloud_it) {
     int value;
     switch (filtering_axis_) {
@@ -888,3 +990,30 @@ PCLVisualizer::on_actionBGColor_triggered()
     ui->qvtkWidget->update();
   }
 }
+
+void
+PCLVisualizer::on_actionabout_triggered()
+{}
+
+void
+PCLVisualizer::on_comboBox_Color_currentIndexChanged(const QString& arg1)
+{
+
+  isRBGA = (arg1 == "RGB");
+  if (isRBGA) {
+    viewer_->updatePointCloud(cloudRGBA_, "cloud");
+  } else {
+    viewer_->updatePointCloud(cloud_, "cloud");
+  }
+  ui->qvtkWidget->update();
+  //--------------------LOG--------------------------
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " + "[Color Mode Changed] " + arg1;
+  logList.push_back(logStr);
+  ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
+}
+
+void
+PCLVisualizer::on_actionCoordinateSystem_triggered()
+{}

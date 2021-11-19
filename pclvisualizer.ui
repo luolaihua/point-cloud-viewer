@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1055</width>
-    <height>667</height>
+    <height>660</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -152,6 +152,12 @@
     <property name="title">
      <string>工具</string>
     </property>
+    <addaction name="actionKD_tree"/>
+    <addaction name="actionOC_tree"/>
+    <addaction name="actionPlaneSeg"/>
+    <addaction name="actionCylinderSeg"/>
+    <addaction name="actionNormalEst"/>
+    <addaction name="actiondownSampling"/>
     <addaction name="actionCoordinateSystem"/>
     <addaction name="actionBGColor"/>
    </widget>
@@ -159,6 +165,12 @@
     <property name="title">
      <string>离群点移除</string>
     </property>
+    <addaction name="actionStatisticalRemove"/>
+    <addaction name="actionDB"/>
+    <addaction name="actionDBSCAN"/>
+    <addaction name="actionDBSCAN_KD"/>
+    <addaction name="actionKANN_DBSCAN"/>
+    <addaction name="actionKANN_DBSCAN_KD"/>
    </widget>
    <widget class="QMenu" name="menu_4">
     <property name="title">
@@ -166,26 +178,54 @@
     </property>
     <addaction name="actionVelodyne_Lidar"/>
     <addaction name="actionleishen"/>
+    <addaction name="actionRPLIDAR"/>
+    <addaction name="actionRS_LIDAR"/>
    </widget>
    <widget class="QMenu" name="menu_5">
     <property name="title">
      <string>滤波</string>
     </property>
+    <addaction name="actionGaussFilter"/>
+    <addaction name="actionAverageFiltering"/>
+    <addaction name="actionLaplace"/>
+    <addaction name="actionDesbrun"/>
+    <addaction name="actionPassThrough"/>
+    <addaction name="actionRANSAC"/>
+    <addaction name="actionBilateral"/>
+    <addaction name="actionConditionalRemoval"/>
+    <addaction name="actionMedian_2"/>
    </widget>
    <widget class="QMenu" name="menu_6">
     <property name="title">
      <string>配准</string>
     </property>
+    <addaction name="actionICP"/>
+    <addaction name="actionNDT"/>
+    <addaction name="actionSuper_4PCS"/>
+    <addaction name="actionISS_Super_4PCS"/>
+    <addaction name="actionFPFH"/>
+    <addaction name="actionNICP"/>
+    <addaction name="actionGICP"/>
+    <addaction name="actionMBICP"/>
+    <addaction name="actionSAC_IA"/>
    </widget>
    <widget class="QMenu" name="menu_7">
     <property name="title">
      <string>表面重建</string>
     </property>
+    <addaction name="actionMLS"/>
+    <addaction name="actionMLS_GreedyProjection"/>
+    <addaction name="actionPoisson"/>
+    <addaction name="actionNURBS"/>
+    <addaction name="actionRBF"/>
+    <addaction name="actionblobby"/>
    </widget>
    <widget class="QMenu" name="menu_8">
     <property name="title">
      <string>帮助</string>
     </property>
+    <addaction name="actionabout"/>
+    <addaction name="actioncontact"/>
    </widget>
    <widget class="QMenu" name="menu_10">
     <property name="title">
@@ -197,6 +237,19 @@
     <addaction name="actionfileWin"/>
     <addaction name="actioncolorWin"/>
    </widget>
+   <widget class="QMenu" name="menu_12">
+    <property name="title">
+     <string>关键点</string>
+    </property>
+    <addaction name="actionAgastKeypoint2D"/>
+    <addaction name="actionBriskKeypoint2D"/>
+    <addaction name="actionHarrisKeypoint2D"/>
+    <addaction name="actionHarrisKeypoint3D"/>
+    <addaction name="actionISSKeypoint3D"/>
+    <addaction name="actionNarfKeypoint"/>
+    <addaction name="actionSIFTKeypoint"/>
+    <addaction name="actionSUSANKeypoint"/>
+   </widget>
    <addaction name="menu"/>
    <addaction name="menu_4"/>
    <addaction name="menu_10"/>
@@ -204,6 +257,7 @@
    <addaction name="menu_3"/>
    <addaction name="menu_5"/>
    <addaction name="menu_6"/>
+   <addaction name="menu_12"/>
    <addaction name="menu_7"/>
    <addaction name="menu_2"/>
    <addaction name="menu_8"/>
@@ -353,7 +407,7 @@
           </widget>
          </item>
          <item row="8" column="1">
-          <widget class="QComboBox" name="comboBox_2">
+          <widget class="QComboBox" name="comboBox_Color">
            <property name="contextMenuPolicy">
             <enum>Qt::PreventContextMenu</enum>
            </property>
@@ -1001,7 +1055,7 @@
   </action>
   <action name="actionCoordinateSystem">
    <property name="text">
-    <string>CoordinateSystem [OFF]</string>
+    <string>坐标轴 [OFF]</string>
    </property>
   </action>
   <action name="actionBGColor">
@@ -1020,7 +1074,7 @@
   </action>
   <action name="actionleishen">
    <property name="text">
-    <string>镭神</string>
+    <string>LeiShen Lidar</string>
    </property>
   </action>
   <action name="actionPCD">
@@ -1227,6 +1281,266 @@ p, li { white-space: pre-wrap; }
   <action name="actioncolorWin">
    <property name="text">
     <string>属性控制窗口</string>
+   </property>
+  </action>
+  <action name="actionabout">
+   <property name="text">
+    <string> 关于软件</string>
+   </property>
+  </action>
+  <action name="actioncontact">
+   <property name="text">
+    <string>联系作者</string>
+   </property>
+  </action>
+  <action name="actionRPLIDAR">
+   <property name="text">
+    <string>RPLIDAR</string>
+   </property>
+  </action>
+  <action name="actionRS_LIDAR">
+   <property name="text">
+    <string>RS-LIDAR</string>
+   </property>
+  </action>
+  <action name="actionStatisticalRemove">
+   <property name="text">
+    <string> 基于统计</string>
+   </property>
+  </action>
+  <action name="actionDB">
+   <property name="text">
+    <string> 基于密度</string>
+   </property>
+  </action>
+  <action name="actionDBSCAN">
+   <property name="text">
+    <string>DBSCAN</string>
+   </property>
+  </action>
+  <action name="actionDBSCAN_KD">
+   <property name="text">
+    <string>DBSCAN-KD</string>
+   </property>
+  </action>
+  <action name="actionKANN_DBSCAN">
+   <property name="text">
+    <string>KANN-DBSCAN</string>
+   </property>
+  </action>
+  <action name="actionKANN_DBSCAN_KD">
+   <property name="text">
+    <string>KANN-DBSCAN-KD</string>
+   </property>
+  </action>
+  <action name="actionGaussFilter">
+   <property name="text">
+    <string>高斯滤波</string>
+   </property>
+  </action>
+  <action name="actionLaplace">
+   <property name="text">
+    <string>拉普拉斯滤波</string>
+   </property>
+  </action>
+  <action name="actionDesbrun">
+   <property name="text">
+    <string>Desbrun滤波</string>
+   </property>
+  </action>
+  <action name="actionPassThrough">
+   <property name="text">
+    <string>直通滤波 </string>
+   </property>
+  </action>
+  <action name="actionRANSAC">
+   <property name="text">
+    <string>RANSAC滤波</string>
+   </property>
+  </action>
+  <action name="actionAverageFiltering">
+   <property name="text">
+    <string>平均滤波</string>
+   </property>
+  </action>
+  <action name="actionMedian">
+   <property name="text">
+    <string>Median </string>
+   </property>
+  </action>
+  <action name="actionBilateral">
+   <property name="text">
+    <string>双边滤波</string>
+   </property>
+  </action>
+  <action name="actionVoxel_Grid">
+   <property name="text">
+    <string>Voxel Grid</string>
+   </property>
+  </action>
+  <action name="actionUniform">
+   <property name="text">
+    <string>Uniform</string>
+   </property>
+  </action>
+  <action name="actionICP">
+   <property name="text">
+    <string>ICP</string>
+   </property>
+  </action>
+  <action name="actionNDT">
+   <property name="text">
+    <string>NDT</string>
+   </property>
+  </action>
+  <action name="actionSuper_4PCS">
+   <property name="text">
+    <string>Super 4PCS</string>
+   </property>
+  </action>
+  <action name="actionISS_Super_4PCS">
+   <property name="text">
+    <string>ISS-Super 4PCS</string>
+   </property>
+  </action>
+  <action name="actionMLS">
+   <property name="text">
+    <string>MLS</string>
+   </property>
+  </action>
+  <action name="actionMLS_GreedyProjection">
+   <property name="text">
+    <string>MLS-GreedyProjection</string>
+   </property>
+  </action>
+  <action name="actionPoisson">
+   <property name="text">
+    <string>Poisson</string>
+   </property>
+  </action>
+  <action name="actionNURBS">
+   <property name="text">
+    <string>NURBS</string>
+   </property>
+  </action>
+  <action name="actionRBF">
+   <property name="text">
+    <string>RBF</string>
+   </property>
+  </action>
+  <action name="actionblobby">
+   <property name="text">
+    <string>blobby</string>
+   </property>
+  </action>
+  <action name="actionAgastKeypoint2D">
+   <property name="text">
+    <string>AgastKeypoint2D</string>
+   </property>
+  </action>
+  <action name="actionBriskKeypoint2D">
+   <property name="text">
+    <string>BriskKeypoint2D</string>
+   </property>
+  </action>
+  <action name="actionHarrisKeypoint2D">
+   <property name="text">
+    <string>HarrisKeypoint2D</string>
+   </property>
+  </action>
+  <action name="actionHarrisKeypoint3D">
+   <property name="text">
+    <string>HarrisKeypoint3D</string>
+   </property>
+  </action>
+  <action name="actionISSKeypoint3D">
+   <property name="text">
+    <string>ISSKeypoint3D</string>
+   </property>
+  </action>
+  <action name="actionNarfKeypoint">
+   <property name="text">
+    <string>NarfKeypoint</string>
+   </property>
+  </action>
+  <action name="actionSIFTKeypoint">
+   <property name="text">
+    <string>SIFTKeypoint</string>
+   </property>
+  </action>
+  <action name="actionSUSANKeypoint">
+   <property name="text">
+    <string>SUSANKeypoint</string>
+   </property>
+  </action>
+  <action name="actionConditionalRemoval">
+   <property name="text">
+    <string>条件滤波</string>
+   </property>
+  </action>
+  <action name="actionKD_tree">
+   <property name="text">
+    <string>KD-tree</string>
+   </property>
+  </action>
+  <action name="actionOC_tree">
+   <property name="text">
+    <string>OC-tree</string>
+   </property>
+  </action>
+  <action name="actionFPFH">
+   <property name="text">
+    <string>FPFH</string>
+   </property>
+  </action>
+  <action name="actionNICP">
+   <property name="text">
+    <string>NICP</string>
+   </property>
+  </action>
+  <action name="actionGICP">
+   <property name="text">
+    <string>GICP</string>
+   </property>
+  </action>
+  <action name="actionMBICP">
+   <property name="text">
+    <string>MBICP</string>
+   </property>
+  </action>
+  <action name="actionSAC_IA">
+   <property name="text">
+    <string>SAC-IA</string>
+   </property>
+  </action>
+  <action name="actionplane">
+   <property name="text">
+    <string>plane Seg</string>
+   </property>
+  </action>
+  <action name="actionPlaneSeg">
+   <property name="text">
+    <string>平面提取</string>
+   </property>
+  </action>
+  <action name="actionCylinderSeg">
+   <property name="text">
+    <string>圆柱体提取</string>
+   </property>
+  </action>
+  <action name="actionNormalEst">
+   <property name="text">
+    <string>法线估计</string>
+   </property>
+  </action>
+  <action name="actionMedian_2">
+   <property name="text">
+    <string>中值滤波 </string>
+   </property>
+  </action>
+  <action name="actiondownSampling">
+   <property name="text">
+    <string>下采样</string>
    </property>
   </action>
  </widget>

@@ -19,9 +19,11 @@
 #include <QSettings>
 #include <QSpinBox>
 #include <QString>
+#include <QStringList>
 #include <QTextCharFormat>
 #include <QToolBar>
 #include <QToolButton>
+
 // Point Cloud Library
 #include <pcl/common/common.h>
 #include <pcl/filters/filter.h>
@@ -40,9 +42,10 @@
 
 #include "inputdialog.h"
 //使用的点云格式
-typedef pcl::PointXYZRGBA PointT;
-// typedef pcl::PointXYZ PointT;
+typedef pcl::PointXYZRGBA PointTRGBA;
+typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
+typedef pcl::PointCloud<pcl::PointXYZRGBA> PointCloudTRGBA;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -57,7 +60,7 @@ class PCLVisualizer : public QMainWindow
 public:
   PCLVisualizer(QWidget* parent = nullptr);
   ~PCLVisualizer();
-  QString logStr;
+
   void createActions();  //创建动作
   void createMenus();    //创建菜单
   void createToolBars(); //创建工具栏
@@ -103,7 +106,10 @@ protected:
   //创建一个共享的PCLVisualizer 对象用于显示
   pcl::visualization::PCLVisualizer::Ptr viewer_;
   //创建一个共享指针用于保存点云
+  //原始点云
   PointCloudT::Ptr cloud_;
+  //彩色点云
+  PointCloudTRGBA::Ptr cloudRGBA_;
 
   /** @brief 坐标轴：0 = x | 1 = y | 2 = z */
   int filtering_axis_;
@@ -146,9 +152,20 @@ private slots:
 
   void on_actionBGColor_triggered();
 
+  void on_actionabout_triggered();
+
+  void on_comboBox_Color_currentIndexChanged(const QString& arg1);
+
+  void on_actionCoordinateSystem_triggered();
+
 private:
   Ui::PCLVisualizer* ui;
   inputDialog* inputDlg;
+
+  QString logStr;
+  QStringList logList;
+
+  bool isRBGA;
 
   QColor bgColor;
 
