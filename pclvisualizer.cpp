@@ -101,10 +101,10 @@ void
 PCLVisualizer::createActions()
 {
   //添加点云
-  addCloudAction =
-	new QAction(QIcon(":/images/files/cloud.png"), "添加点云", this);
-  addCloudAction->setShortcut(tr("Ctrl+O"));    //(b)
-  addCloudAction->setStatusTip(tr("添加点云")); //(c)
+  // addCloudAction =
+  // new QAction(QIcon(":/images/files/cloud.png"), "添加点云", this);
+  // addCloudAction->setShortcut(tr("Ctrl+O"));    //(b)
+  // addCloudAction->setStatusTip(tr("添加点云")); //(c)
 
   //新建工作台
   newWorkStationAction =
@@ -167,7 +167,6 @@ PCLVisualizer::createActions()
 	new QAction(QIcon(":/images/files/star.png"), tr("收藏点云文件"), this);
   starCloudAction->setStatusTip(tr("收藏点云文件"));
 
-
   //导出屏幕截图
   snapShotAction =
 	new QAction(QIcon(":/images/files/snapshot.png"), tr("导出屏幕截图"), this);
@@ -215,9 +214,7 @@ PCLVisualizer::createActions()
 
 void
 PCLVisualizer::createMenus()
-{
-
-}
+{}
 
 void
 PCLVisualizer::createToolBars()
@@ -226,7 +223,8 @@ PCLVisualizer::createToolBars()
   fileTool = addToolBar("cloudFile");
 
   fileTool->addAction(newWorkStationAction);
-  fileTool->addAction(addCloudAction);
+  // fileTool->addAction(addCloudAction);
+  fileTool->addAction(ui->actionload_point_cloud);
   fileTool->addAction(newCloudAction);
   fileTool->addAction(copyCloudAction);
   fileTool->addAction(cutCloudAction);
@@ -269,7 +267,19 @@ PCLVisualizer::initPointCloud()
 {
   // Setup the cloud pointer
   cloud_.reset(new PointCloudT);
+  cloud.reset(new PointCloudT);
+  cloud_noise.reset(new PointCloudT);
+  cloud_filtered.reset(new PointCloudT);
+  cloud_filtered_guass.reset(new PointCloudT);
+  cloud_filtered_guass_down.reset(new PointCloudT);
+  cloud_filtered_out.reset(new PointCloudT);
+
+  cloud_in.reset(new PointCloudT);
+  cloud_tr.reset(new PointCloudT);
+  cloud_RE.reset(new PointCloudT);
+
   cloudRGBA_.reset(new PointCloudTRGBA);
+
   // The number of points in the cloud
   cloud_->resize(800);
   cloudRGBA_->resize(800);
@@ -947,6 +957,230 @@ PCLVisualizer::openProgressDlg(int num = 500)
 }
 
 void
+PCLVisualizer::updateCloudInfo()
+{
+  // TODO 暂时只更新点云数量
+  ui->pointCountEdt->setText(QString::number(cloud_->points.size()));
+}
+
+void
+PCLVisualizer::best_filter()
+{
+  pcl::console::TicToc time;
+
+  //创建一个进度对话框
+  QProgressDialog* progressDialog = new QProgressDialog(this);
+  QFont font("ZYSong18030", 12);
+  progressDialog->setFont(font);
+  progressDialog->setWindowModality(Qt::WindowModal); //(d)
+  progressDialog->setMinimumDuration(10);             //(e)
+  progressDialog->setWindowTitle(tr("Please Wait"));  //(f)
+  progressDialog->setLabelText(tr("Processing..."));  //(g)
+  progressDialog->setCancelButtonText(tr("Cancel"));  //(h)
+  progressDialog->setRange(0, 100); //设置进度对话框的步进范围
+
+  progressDialog->setValue(10);      //(i)
+  if (progressDialog->wasCanceled()) //(j)
+	return;
+
+  *cloud = *cloud_;
+  //添加高斯噪声
+  time.tic();
+  GenerateGaussNoise(cloud, cloud_noise, 0, 0.001);
+  std::cout << "添加高斯噪声耗时: " << time.toc() << " ms" << std::endl;
+  std::cerr << "添加高斯噪声: " << std::endl;
+  std::cerr << *cloud_noise << std::endl;
+  // show_point_cloud(cloud_noise, "point cloud with noise");
+
+  progressDialog->setValue(20);      //(i)
+  if (progressDialog->wasCanceled()) //(j)
+	return;
+  //离群点移除
+  time.tic();
+  radius_filter(cloud_noise, cloud_filtered, cloud_filtered_out);
+  // statistical_filter(cloud_noise, cloud_filtered, cloud_filtered_out);
+  // std::cout << "离群点移除耗时: " << time.toc() << " ms" << std::endl;
+  // std::cerr << "离群点移除: " << std::endl;
+  // std::cerr << *cloud_filtered << std::endl;
+
+  //--------------------LOG--------------------------
+  logStr =
+	"[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + "] " +
+	QString("[离群点移除] Outliers Remove use time : %1").arg(time.toc()) +
+	" ms";
+  logList.push_back(logStr);
+  ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
+  progressDialog->setValue(40);      //(i)
+  if (progressDialog->wasCanceled()) //(j)
+	return;
+
+  //高斯平滑
+  time.tic();
+  gaussian_filter(cloud_filtered, cloud_filtered_guass, 0.01);
+  // std::cout << "高斯平滑耗时: " << time.toc() << " ms" << std::endl;
+  // std::cerr << "高斯平滑: " << std::endl;
+  // std::cerr << *cloud_filtered_guass << std::endl;
+
+  //--------------------LOG--------------------------
+  logStr =
+	"[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + "] " +
+	QString("[滤波平滑] Filtering use time : %1").arg(time.toc()) + " ms";
+  logList.push_back(logStr);
+  ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
+  progressDialog->setValue(60);      //(i)
+  if (progressDialog->wasCanceled()) //(j)
+	return;
+
+  //下采样
+  time.tic();
+  downSampling(cloud_filtered_guass, cloud_filtered_guass_down, 0.01);
+  // std::cout << "下采样耗时: " << time.toc() << " ms" << std::endl;
+  // std::cerr << "下采样: " << std::endl;
+  // std::cerr << *cloud_filtered_guass_down << std::endl;
+
+  //--------------------LOG--------------------------
+  logStr =
+	"[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + "] " +
+	QString("[下采样] Down Sampling use time : %1").arg(time.toc()) + " ms";
+  logList.push_back(logStr);
+  ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
+  progressDialog->setValue(80);      //(i)
+  if (progressDialog->wasCanceled()) //(j)
+	return;
+
+  writer.write<pcl::PointXYZ>("cloud_noise.pcd", *cloud_noise, false);
+  writer.write<pcl::PointXYZ>("cloud_filtered.pcd", *cloud_filtered, false);
+  writer.write<pcl::PointXYZ>(
+	"cloud_filtered_guass.pcd", *cloud_filtered_guass, false);
+  writer.write<pcl::PointXYZ>(
+	"cloud_filtered_guass_down.pcd", *cloud_filtered_guass_down, false);
+
+  // text_vector.push_back("cloud");
+  // text_vector.push_back("cloud_noise");
+  // text_vector.push_back("cloud_filtered");
+  // text_vector.push_back("cloud_filtered_guass");
+  // text_vector.push_back("cloud_filtered_guass_down");
+  // cloudPtr_vector.push_back(cloud);
+  // cloudPtr_vector.push_back(cloud_noise);
+  // cloudPtr_vector.push_back(cloud_filtered);
+  // cloudPtr_vector.push_back(cloud_filtered_guass);
+  // cloudPtr_vector.push_back(cloud_filtered_guass_down);
+
+  // TODO RGB点云暂不更新
+
+  *cloud_ = *cloud_filtered_guass_down;
+  // if (isRBGA) {
+  //	viewer_->updatePointCloud(cloudRGBA_, "cloud");
+  //}
+  // else {
+  //	viewer_->updatePointCloud(cloud_, "cloud");
+  //}
+  viewer_->updatePointCloud(cloud_, "cloud");
+  viewer_->resetCamera();
+  ui->qvtkWidget->update();
+  //更新点云信息
+  updateCloudInfo();
+
+  progressDialog->setValue(100);     //(i)
+  if (progressDialog->wasCanceled()) //(j)
+	return;
+
+  return;
+}
+
+void PCLVisualizer::ICP_aligin(pcl::IterativeClosestPoint<PointT, PointT>::Ptr icp, PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_RE)
+{
+	icp->setMaximumIterations(1);
+	icp->setInputSource(cloud_RE);
+	icp->setInputTarget(cloud_in);
+	icp->align(*cloud_RE);
+	icp->setMaximumIterations(1); // We set this variable to 1 for the next time
+								  // we will call .align () function
+	std::cout << "Applied " << iterations << " iteration(s)" << std::endl;
+	if (icp->hasConverged()) {
+		std::cout << "\nHasConverged: " << icp->hasConverged()
+			<< ", getFitnessScore: " << icp->getFitnessScore() << std::endl;
+		cout << "Transformation: \n" << icp->getFinalTransformation() << endl;
+		print4x4Matrix(icp->getFinalTransformation().cast<double>());
+		qDebug() << get4x4MatrixStr(icp->getFinalTransformation().cast<double>())
+			<< endl;
+		////ui->matEdit.setText(get4x4MatrixStr(icp->getFinalTransformation().cast<double>()));
+		ui->matEdit->setPlainText(get4x4MatrixStr(icp->getFinalTransformation().cast<double>()));
+	}
+	else {
+		PCL_ERROR("\nICP has not converged.\n");
+		// return (-1);
+	}
+}
+
+void
+PCLVisualizer::best_aligin()
+{
+	icp = boost::make_shared< pcl::IterativeClosestPoint<PointT, PointT>>();
+
+  *cloud_in = *cloud_;
+  //将原始点云旋转平移
+  cloudTransform(cloud_in, cloud_RE, M_PI / 10, 0.1);
+  *cloud_tr = *cloud_RE; // 在cloud_tr中备份，以供显示
+
+  pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_in_color_h(
+	cloud_in, 20, 20, 180);
+  pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_tr_color_h(
+	cloud_tr, 250, 80, 0);
+  pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h(
+	cloud_RE, 180, 20, 20);
+
+  viewer_->addPointCloud(cloud_tr, cloud_tr_color_h, "cloud2");
+  viewer_->updatePointCloud(cloud_in, cloud_in_color_h, "cloud");
+  viewer_->resetCamera();
+  ui->qvtkWidget->update();
+}
+
+void PCLVisualizer::best_surface()
+{
+	*cloud_in = *cloud_;
+	pcl::PolygonMesh mesh;//存储最终三角化的网格模型
+	pcl::PolygonMesh mesh_mls;//存储最终三角化的网格模型
+
+	//下采样精简点云
+	Voxel_downsampling(cloud_in, cloud, 0);
+
+	//-----------------连接XYZ和法向量字段--------------
+	pcl::PointCloud<pcl::PointNormal>::Ptr cloud_with_normals(new pcl::PointCloud<pcl::PointNormal>);
+	pcl::PointCloud<pcl::PointNormal>::Ptr cloud_with_normals_mls(new pcl::PointCloud<pcl::PointNormal>);
+
+	bool isMLS = true;
+
+	if (isMLS)
+	{
+		MLS(cloud, cloud_with_normals_mls);
+		GP(cloud, cloud_with_normals_mls, mesh);
+	}
+	else {
+		//----------------法线估计-------------------------
+		pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> n;
+		pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
+		pcl::search::KdTree<pcl::PointXYZ>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZ>);
+		tree->setInputCloud(cloud);
+		n.setInputCloud(cloud);
+		n.setSearchMethod(tree);
+		n.setKSearch(10);
+		n.compute(*normals);
+
+		pcl::concatenateFields(*cloud, *normals, *cloud_with_normals);
+		GP(cloud, cloud_with_normals, mesh);
+	}
+	viewer_->removePointCloud("cloud");
+	viewer_->removePointCloud("cloud2");
+	viewer_->addPolygonMesh(mesh, "mesh");
+	viewer_->resetCamera();
+	ui->qvtkWidget->update();
+}
+
+void
 PCLVisualizer::newWorkStation()
 {
   PCLVisualizer* newPCV = new PCLVisualizer;
@@ -1032,9 +1266,10 @@ PCLVisualizer::on_actionbestSurface_triggered()
   logList.push_back(logStr);
   ui->logList->addItem(logStr);
   //--------------------LOG--------------------------
-  time.start();
+  q_time.start();
 
-  openProgressDlg(300);
+  //openProgressDlg(300);
+  best_surface();
 
   //--------------------LOG--------------------------
   logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
@@ -1046,7 +1281,7 @@ PCLVisualizer::on_actionbestSurface_triggered()
   //--------------------LOG--------------------------
   logStr =
 	"[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + "] " +
-	QString("[表面重建] surface rebuild use time : %1").arg(time.elapsed()) +
+	QString("[表面重建] surface rebuild use time : %1").arg(q_time.elapsed()) +
 	" ms";
   logList.push_back(logStr);
   ui->logList->addItem(logStr);
@@ -1059,16 +1294,17 @@ PCLVisualizer::on_actionbestRemoval_triggered()
 
   //--------------------LOG--------------------------
   logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-		   "] " + "[离群点移除] Outliers Remove start";
+		   "] " + "[去噪平滑] Outliers Remove start";
   logList.push_back(logStr);
   ui->logList->addItem(logStr);
   //--------------------LOG--------------------------
-  time.start();
-  openProgressDlg(300);
+  q_time.start();
+  // openProgressDlg(300);
+  best_filter();
 
   //--------------------LOG--------------------------
   logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-		   "] " + "[离群点移除] Outliers Remove Done";
+		   "] " + "[去噪平滑] Outliers Remove Done";
   logList.push_back(logStr);
   ui->logList->addItem(logStr);
   //--------------------LOG--------------------------
@@ -1076,7 +1312,7 @@ PCLVisualizer::on_actionbestRemoval_triggered()
   //--------------------LOG--------------------------
   logStr =
 	"[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + "] " +
-	QString("[离群点移除] Outliers Remove use time : %1").arg(time.elapsed()) +
+	QString("[去噪平滑] Outliers Remove use time : %1").arg(q_time.elapsed()) +
 	" ms";
   logList.push_back(logStr);
   ui->logList->addItem(logStr);
@@ -1093,8 +1329,9 @@ PCLVisualizer::on_actionbestFiltering_triggered()
   logList.push_back(logStr);
   ui->logList->addItem(logStr);
   //--------------------LOG--------------------------
-  time.start();
+  q_time.start();
   openProgressDlg(300);
+  Voxel_downsampling(cloud_, cloud_, 0.001);
 
   //--------------------LOG--------------------------
   logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
@@ -1104,13 +1341,19 @@ PCLVisualizer::on_actionbestFiltering_triggered()
   //--------------------LOG--------------------------
 
   //--------------------LOG--------------------------
-  logStr =
-	"[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + "] " +
-	QString("[滤波平滑] surface filtering use time : %1").arg(time.elapsed()) +
-	" ms";
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+		   "] " +
+		   QString("[滤波平滑] surface filtering use time : %1")
+			 .arg(q_time.elapsed()) +
+		   " ms";
   logList.push_back(logStr);
   ui->logList->addItem(logStr);
   //--------------------LOG--------------------------
+
+  updateCloudInfo();
+  viewer_->updatePointCloud(cloud_,  "cloud");
+  viewer_->resetCamera();
+  ui->qvtkWidget->update();
 }
 
 void
@@ -1123,8 +1366,9 @@ PCLVisualizer::on_actionbestRegistration_triggered()
   logList.push_back(logStr);
   ui->logList->addItem(logStr);
   //--------------------LOG--------------------------
-  time.start();
-  openProgressDlg(300);
+  q_time.start();
+  // openProgressDlg(300);
+  best_aligin();
 
   //--------------------LOG--------------------------
   logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
@@ -1134,10 +1378,11 @@ PCLVisualizer::on_actionbestRegistration_triggered()
   //--------------------LOG--------------------------
 
   //--------------------LOG--------------------------
-  logStr =
-	"[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + "] " +
-	QString("[点云配准] Cloud Registration use time : %1").arg(time.elapsed()) +
-	" ms";
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+		   "] " +
+		   QString("[点云配准] Cloud Registration use time : %1")
+			 .arg(q_time.elapsed()) +
+		   " ms";
   logList.push_back(logStr);
   ui->logList->addItem(logStr);
   //--------------------LOG--------------------------
@@ -1154,7 +1399,7 @@ PCLVisualizer::on_actionbestKeypoint_triggered()
   ui->logList->addItem(logStr);
   //--------------------LOG--------------------------
 
-  time.start();
+  q_time.start();
   openProgressDlg(300);
   //--------------------LOG--------------------------
   logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
@@ -1167,7 +1412,7 @@ PCLVisualizer::on_actionbestKeypoint_triggered()
   logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
 		   "] " +
 		   QString("[关键点提取] Key points extracting use time : %1")
-			 .arg(time.elapsed()) +
+			 .arg(q_time.elapsed()) +
 		   " ms";
   logList.push_back(logStr);
   ui->logList->addItem(logStr);
@@ -1182,27 +1427,49 @@ void
 PCLVisualizer::on_actionExportLog_triggered()
 {
 
-	QString filename =
-		QFileDialog::getSaveFileName(this,
-			tr("Save Log"),
-			"/home/",
-			tr("Log(*.txt)"));
-	PCL_INFO("File chosen: %s\n", filename.toStdString().c_str());
+  QString filename = QFileDialog::getSaveFileName(
+	this, tr("Save Log"), "/home/", tr("Log(*.txt)"));
+  PCL_INFO("File chosen: %s\n", filename.toStdString().c_str());
 
-	QFile file;
-	file.setFileName(filename);
-	QByteArray data;
+  QFile file;
+  file.setFileName(filename);
+  QByteArray data;
 
-	QString log;
-	for (auto it = logList.begin();it != logList.end();++it)
-	{
-		log.append(*it+"\n");
+  QString log;
+  for (auto it = logList.begin(); it != logList.end(); ++it) {
+	log.append(*it + "\n");
+  }
+  if (file.open(QIODevice::WriteOnly)) {
+	QByteArray res2 = log.toUtf8(); // toLatin1()转为QByteArray
+	file.write(res2);
+	file.close();
+  }
+}
+
+void
+PCLVisualizer::on_actionRedo_triggered()
+{
+	++iterations;
+	if (iterations < 3) {
+		openProgressDlg(300);
 	}
-	if (file.open(QIODevice::WriteOnly)) {
-		QByteArray res2 = log.toUtf8();//toLatin1()转为QByteArray
-		file.write(res2);
-		file.close();
-	}
+		
+	//qDebug() << "iterations: "<< iterations << endl;
+	//TODO 暂时在这里做点云配准显示
 
+	ICP_aligin(icp, cloud_in, cloud_RE);
+
+
+	pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_in_color_h(
+		cloud_in, 20, 20, 180);
+	pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_tr_color_h(
+		cloud_tr, 250, 80, 0);
+	pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h(
+		cloud_RE, 180, 20, 20);
+
+	viewer_->updatePointCloud(cloud_RE, cloud_icp_color_h, "cloud2");
+	viewer_->updatePointCloud(cloud_in, cloud_in_color_h, "cloud");
+	viewer_->resetCamera();
+	ui->qvtkWidget->update();
 
 }

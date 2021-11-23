@@ -59,5 +59,6 @@
         <file>images/grey.png</file>
         <file>images/RGB.png</file>
         <file>images/files/bgColor.png</file>
+        <file>images/1.gif</file>
     </qresource>
 </RCC>

@@ -10,39 +10,25 @@
 int
 main(int argc, char* argv[])
 {
-//设置中文编码
-#if (QT_VERSION <= QT_VERSION_CHECK(5, 0, 0))
 
-#if _MSC_VER
-  QTextCodec* codec = QTextCodec::codecForName("gbk");
-#else
-  QTextCodec* codec = QTextCodec::codecForName("utf-8");
-#endif
-  QTextCodec::setCodecForLocale(codec);
-  QTextCodec::setCodecForCStrings(codec);
-  QTextCodec::setCodecForTr(codec);
-#else
-  QTextCodec* codec = QTextCodec::codecForName("utf-8");
-  QTextCodec::setCodecForLocale(codec);
-#endif
   vtkOutputWindow::SetGlobalWarningDisplay(0); //不弹出vtkOutputWindow窗口
   QApplication a(argc, argv);
 
   //启动界面
-  QPixmap pixmap("1.gif");      //读取图片
-  QSplashScreen splash(pixmap); //
-  splash.setWindowOpacity(1);   // 设置窗口透明度
+  QPixmap pixmap(":/images/1.gif"); //读取图片
+  QSplashScreen splash(pixmap);     //
+  splash.setWindowOpacity(1);       // 设置窗口透明度
 
-  //  QLabel label(&splash);
-  //  QMovie mv("1.gif");
-  //  label.setMovie(&mv);
-  //  mv.start();
-  //  splash.show();
-  //  splash.setCursor(Qt::BlankCursor);
-  //  for (int i = 0; i < 5000; i += mv.speed()) {
-  //    a.processEvents(); //使程序在显示启动画面的同时仍能响应鼠标等其他事件
-  //    Sleep(mv.speed());
-  //  }
+  QLabel label(&splash);
+  QMovie mv(":/images/1.gif");
+  label.setMovie(&mv);
+  mv.start();
+  splash.show();
+  splash.setCursor(Qt::BlankCursor);
+  for (int i = 0; i < 3000; i += mv.speed()) {
+    a.processEvents(); //使程序在显示启动画面的同时仍能响应鼠标等其他事件
+    Sleep(mv.speed());
+  }
 
   //读取ini文件中上一次关闭软件时候的窗口位置和大小：
   qDebug() << qApp->applicationDirPath() << endl;
