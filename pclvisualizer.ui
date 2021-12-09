@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_4">
     <item row="0" column="0">
-     <widget class="QVTKWidget" name="qvtkWidget">
+     <widget class="QVTKWidget" name="qvtkWidget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>50</horstretch>
@@ -106,7 +106,7 @@
      <x>0</x>
      <y>0</y>
      <width>1055</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
@@ -257,10 +257,35 @@
     <addaction name="actionSUSANKeypoint"/>
     <addaction name="actionbestKeypoint"/>
    </widget>
+   <widget class="QMenu" name="menu_7">
+    <property name="title">
+     <string>几何属性</string>
+    </property>
+    <addaction name="actionarea"/>
+    <addaction name="actionvol"/>
+    <addaction name="separator"/>
+    <addaction name="action_2"/>
+    <addaction name="action_3"/>
+    <addaction name="actiongetAllGeo"/>
+   </widget>
+   <widget class="QMenu" name="menu_11">
+    <property name="title">
+     <string>点云分割</string>
+    </property>
+    <addaction name="actionplaneSeg"/>
+    <addaction name="actioncylinderSeg"/>
+    <addaction name="actionOSeg"/>
+    <addaction name="actioncolorSeg"/>
+    <addaction name="actiongrowSeg"/>
+    <addaction name="actionsuperVoxel"/>
+    <addaction name="actiongroundSeg"/>
+   </widget>
    <addaction name="menu"/>
    <addaction name="menu_4"/>
    <addaction name="menu_10"/>
    <addaction name="menuTools"/>
+   <addaction name="menu_7"/>
+   <addaction name="menu_11"/>
    <addaction name="menu_3"/>
    <addaction name="menu_5"/>
    <addaction name="menu_6"/>
@@ -354,13 +379,84 @@
         </sizepolicy>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
-       <widget class="QWidget" name="tab_2">
+       <widget class="QWidget" name="pointProperty">
         <attribute name="title">
-         <string>Properties</string>
+         <string>点云属性</string>
         </attribute>
         <layout class="QGridLayout" name="gridLayout_2">
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_11">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string>点云数量</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="pointCountEdt">
+           <property name="text">
+            <string>56932</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_16">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string>颜色</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label_12">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string> 点大小</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QSpinBox" name="pointSizeEdt">
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="minimum">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="1">
           <widget class="QLineEdit" name="fileNameEdt">
            <property name="text">
@@ -374,19 +470,16 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="dataTypeEdt">
            <property name="text">
-            <string>格式</string>
+            <string>binary</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -400,16 +493,6 @@
            </property>
            <property name="readOnly">
             <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSpinBox" name="pointSizeEdt">
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="minimum">
-            <number>1</number>
            </property>
           </widget>
          </item>
@@ -447,6 +530,51 @@
            </item>
           </widget>
          </item>
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="cloudFieldEdt">
+           <property name="text">
+            <string>X-Y-Z</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_15">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string> 有序点云</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string>格式</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
          <item row="6" column="0">
           <widget class="QLabel" name="label_14">
            <property name="frameShape">
@@ -460,19 +588,6 @@
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="pointCountEdt">
-           <property name="text">
-            <string>56932</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -492,10 +607,26 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
-          <widget class="QLineEdit" name="dataTypeEdt">
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_13">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
            <property name="text">
-            <string>binary</string>
+            <string>数据格式</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="fileFormatEdt">
+           <property name="text">
+            <string>PCD</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -508,7 +639,7 @@
          <item row="10" column="0" colspan="2">
           <widget class="QTabWidget" name="tabWidget_2">
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="tab_3">
             <attribute name="title">
@@ -535,37 +666,57 @@
             <attribute name="title">
              <string>旋转角度</string>
             </attribute>
+            <widget class="QLineEdit" name="lineEdit_X">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>10</y>
+               <width>113</width>
+               <height>20</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>0</string>
+             </property>
+            </widget>
+            <widget class="QLineEdit" name="lineEdit_Y">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>40</y>
+               <width>113</width>
+               <height>20</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>1</string>
+             </property>
+            </widget>
+            <widget class="QLineEdit" name="lineEdit_Z">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>70</y>
+               <width>113</width>
+               <height>20</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>0</string>
+             </property>
+            </widget>
            </widget>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="fileFormatEdt">
-           <property name="text">
-            <string>PCD</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="QLineEdit" name="cloudFieldEdt">
-           <property name="text">
-            <string>X-Y-Z</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="8" column="0">
-          <widget class="QLabel" name="label_16">
+        </layout>
+       </widget>
+       <widget class="QWidget" name="geoProperty">
+        <attribute name="title">
+         <string>几何属性</string>
+        </attribute>
+        <layout class="QGridLayout" name="gridLayout_5">
+         <item row="7" column="2">
+          <widget class="QLabel" name="label_9">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -573,23 +724,7 @@
             <enum>QFrame::Raised</enum>
            </property>
            <property name="text">
-            <string>颜色</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_13">
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Raised</enum>
-           </property>
-           <property name="text">
-            <string>数据格式</string>
+            <string> 立方米</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -597,7 +732,7 @@
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_12">
+          <widget class="QLabel" name="label_19">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -605,15 +740,60 @@
             <enum>QFrame::Raised</enum>
            </property>
            <property name="text">
-            <string> 点大小</string>
+            <string>最小单元面积：</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QLabel" name="label_21">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string>OBB包围盒体积</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0">
+          <widget class="QLabel" name="label_22">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string>质心</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QLineEdit" name="lineEdit_OBB">
+           <property name="text">
+            <string>0.00520274</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
          <item row="7" column="0">
-          <widget class="QLabel" name="label_15">
+          <widget class="QLabel" name="label_20">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -621,15 +801,15 @@
             <enum>QFrame::Raised</enum>
            </property>
            <property name="text">
-            <string> 有序点云</string>
+            <string>AABB包围盒体积</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_11">
+         <item row="2" column="2">
+          <widget class="QLabel" name="label_5">
            <property name="frameShape">
             <enum>QFrame::NoFrame</enum>
            </property>
@@ -637,7 +817,242 @@
             <enum>QFrame::Raised</enum>
            </property>
            <property name="text">
-            <string>点云数量</string>
+            <string> 平方米</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLineEdit" name="lineEdit_AABB">
+           <property name="text">
+            <string>0.00520274</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="2">
+          <widget class="QLabel" name="label_10">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string> 立方米</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLineEdit" name="lineEdit_maxUnitAera">
+           <property name="text">
+            <string>24.6096</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_3">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string> 平方米</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLineEdit" name="lineEdit_minUnitAera">
+           <property name="text">
+            <string>0.00520274</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label_17">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string> 最大单元面积：</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="lineEdit_area">
+           <property name="text">
+            <string>318.685</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_2">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string> 表面积：</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QLabel" name="label_6">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string> 平方米</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QLabel" name="label_4">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string> 立方米</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_8">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string>体积：</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="lineEdit_vol">
+           <property name="text">
+            <string>983.484</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="1">
+          <widget class="QLineEdit" name="lineEdit_zhixin">
+           <property name="text">
+            <string>0.00520274</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0">
+          <widget class="QLabel" name="label_23">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string>外接圆半径</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="1">
+          <widget class="QLineEdit" name="lineEdit_outCycleRadius">
+           <property name="text">
+            <string>lineEdit_outCycleRadius</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="2">
+          <widget class="QLabel" name="label_18">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="text">
+            <string> 米</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -648,7 +1063,7 @@
        </widget>
        <widget class="QWidget" name="tab">
         <attribute name="title">
-         <string> ColorMode</string>
+         <string>颜色模式</string>
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
@@ -668,7 +1083,6 @@
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -681,7 +1095,6 @@
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -698,7 +1111,6 @@
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -715,7 +1127,6 @@
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -747,7 +1158,6 @@
            <property name="font">
             <font>
              <pointsize>10</pointsize>
-             <weight>75</weight>
              <bold>true</bold>
             </font>
            </property>
@@ -760,7 +1170,6 @@
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -774,7 +1183,6 @@
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -788,7 +1196,6 @@
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -802,7 +1209,6 @@
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -816,7 +1222,6 @@
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -858,7 +1263,6 @@
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
-                <weight>75</weight>
                 <bold>true</bold>
                </font>
               </property>
@@ -914,7 +1318,6 @@
               <property name="font">
                <font>
                 <pointsize>10</pointsize>
-                <weight>75</weight>
                 <bold>true</bold>
                </font>
               </property>
@@ -1617,6 +2020,66 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="text">
     <string>处理日志导出</string>
+   </property>
+  </action>
+  <action name="actionarea">
+   <property name="text">
+    <string>表面积</string>
+   </property>
+  </action>
+  <action name="actionvol">
+   <property name="text">
+    <string>体积</string>
+   </property>
+  </action>
+  <action name="actiongetAllGeo">
+   <property name="text">
+    <string>一键提取</string>
+   </property>
+  </action>
+  <action name="actionplaneSeg">
+   <property name="text">
+    <string>平面分割</string>
+   </property>
+  </action>
+  <action name="actioncylinderSeg">
+   <property name="text">
+    <string>圆柱体分割</string>
+   </property>
+  </action>
+  <action name="actionOSeg">
+   <property name="text">
+    <string>欧式聚类分割</string>
+   </property>
+  </action>
+  <action name="actioncolorSeg">
+   <property name="text">
+    <string>基于颜色的分割</string>
+   </property>
+  </action>
+  <action name="actiongrowSeg">
+   <property name="text">
+    <string>区域生长分割</string>
+   </property>
+  </action>
+  <action name="actionsuperVoxel">
+   <property name="text">
+    <string>超体素分割</string>
+   </property>
+  </action>
+  <action name="actiongroundSeg">
+   <property name="text">
+    <string>地面分割</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>点云质心</string>
+   </property>
+  </action>
+  <action name="action_3">
+   <property name="text">
+    <string>外接圆</string>
    </property>
   </action>
  </widget>

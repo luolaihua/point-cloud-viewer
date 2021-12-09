@@ -57,6 +57,8 @@ else()
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
         add_executable(PointCloudViewer
+           # 是否打开控制台
+            WIN32
             ${PROJECT_SOURCES}
         )
     endif()

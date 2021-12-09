@@ -19,16 +19,16 @@ main(int argc, char* argv[])
   QSplashScreen splash(pixmap);     //
   splash.setWindowOpacity(1);       // 设置窗口透明度
 
-  QLabel label(&splash);
-  QMovie mv(":/images/1.gif");
-  label.setMovie(&mv);
-  mv.start();
-  splash.show();
-  splash.setCursor(Qt::BlankCursor);
-  for (int i = 0; i < 3000; i += mv.speed()) {
-    a.processEvents(); //使程序在显示启动画面的同时仍能响应鼠标等其他事件
-    Sleep(mv.speed());
-  }
+  //  QLabel label(&splash);
+  //  QMovie mv(":/images/1.gif");
+  //  label.setMovie(&mv);
+  //  mv.start();
+  //  splash.show();
+  //  splash.setCursor(Qt::BlankCursor);
+  //  for (int i = 0; i < 3000; i += mv.speed()) {
+  //    a.processEvents(); //使程序在显示启动画面的同时仍能响应鼠标等其他事件
+  //    Sleep(mv.speed());
+  //  }
 
   //读取ini文件中上一次关闭软件时候的窗口位置和大小：
   qDebug() << qApp->applicationDirPath() << endl;
