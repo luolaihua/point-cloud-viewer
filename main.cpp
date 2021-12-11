@@ -1,4 +1,4 @@
-#include "pclvisualizer.h"
+﻿#include "pclvisualizer.h"
 
 #include <QApplication>
 #include <QDateTime> //添加QDateTime头文件
@@ -14,10 +14,29 @@ main(int argc, char* argv[])
   vtkOutputWindow::SetGlobalWarningDisplay(0); //不弹出vtkOutputWindow窗口
   QApplication a(argc, argv);
 
+  QPixmap pixmap("logo2.png");  //读取图片
+  QSplashScreen splash(pixmap); //
+  splash.setWindowOpacity(0.8); // 设置窗口透明度
+  // splash.setGeometry()
+  // splash.setFixedSize(600, 300);
+  splash.show();
+  // splash.showMessage("程序正在加载......", Qt::AlignCenter, Qt::red);
+  // //显示文字
+  // splash.showMessage("程序正在加载......", Qt::AlignCenter, Qt::red);
+  // //显示文字
+
+  QDateTime time = QDateTime::currentDateTime();
+  QDateTime currentTime = QDateTime::currentDateTime(); //记录当前时间
+  while (time.secsTo(currentTime) <= 2) // 5为需要延时的秒数
+  {
+    currentTime = QDateTime::currentDateTime();
+    a.processEvents();
+  };
+
   //启动界面
-  QPixmap pixmap(":/images/1.gif"); //读取图片
-  QSplashScreen splash(pixmap);     //
-  splash.setWindowOpacity(1);       // 设置窗口透明度
+  //  QPixmap pixmap("logo1.png"); //读取图片
+  //  QSplashScreen splash(pixmap);     //
+  //  splash.setWindowOpacity(1);       // 设置窗口透明度
 
   //  QLabel label(&splash);
   //  QMovie mv(":/images/1.gif");

@@ -1,3 +1,5 @@
+﻿#pragma execution_character_set("utf-8")
+
 #include "pclvisualizer.h"
 
 #include "./ui_pclvisualizer.h"
@@ -557,6 +559,35 @@ PCLVisualizer::loadPCDFile()
   }
   viewer_->resetCamera();
   ui->qvtkWidget->update();
+}
+
+void
+PCLVisualizer::loadPLYFile()
+{
+  QString fileFormat, fileName, fileBaseName, pointCount, filePath, fileSuffix;
+  //读取文件名
+  filePathWithName =
+    QFileDialog::getOpenFileName(this,
+                                 tr("Open point cloud"),
+                                 "E:/BaiduNetdiskWorkspace/Paper-of-Luo/PCD",
+                                 tr("Point cloud data (*.pcd *.ply)"));
+  QFileInfo fileInfo;
+  fileInfo = QFileInfo(filePathWithName);
+  //文件名
+  fileName = fileInfo.fileName();
+  //文件后缀
+  fileSuffix = fileInfo.suffix();
+  //绝对路径
+  filePath = fileInfo.absolutePath();
+  fileBaseName = fileInfo.baseName();
+
+  QString cloudFile = fileName + " [" + filePath + "]";
+  QListWidgetItem* item = new QListWidgetItem;
+  //  item->setBackgroundColor(QColor(220, 230, 250));
+  item->setBackground(QBrush(QColor(220, 230, 250)));
+  item->setData(Qt::DisplayRole, cloudFile);
+  item->setData(Qt::CheckStateRole, Qt::Checked);
+  ui->filesList->addItem(item);
 }
 
 void
@@ -1524,12 +1555,140 @@ void
 PCLVisualizer::on_actionquit_triggered()
 {}
 
+double
+obb(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud) //点云OBB有向包围盒
+{
+  pcl::MomentOfInertiaEstimation<pcl::PointXYZ> feature_extractor;
+  feature_extractor.setInputCloud(cloud);
+  feature_extractor.compute();
+
+  std::vector<float> moment_of_inertia;
+  std::vector<float> eccentricity;
+  pcl::PointXYZ min_point_OBB;
+  pcl::PointXYZ max_point_OBB;
+  pcl::PointXYZ position_OBB;
+  Eigen::Matrix3f rotational_matrix_OBB;
+  float major_value, middle_value, minor_value;
+  Eigen::Vector3f major_vector, middle_vector, minor_vector;
+  Eigen::Vector3f mass_center;
+
+  feature_extractor.getMomentOfInertia(moment_of_inertia);
+  feature_extractor.getEccentricity(eccentricity);
+  feature_extractor.getOBB(
+    min_point_OBB, max_point_OBB, position_OBB, rotational_matrix_OBB);
+  feature_extractor.getEigenValues(major_value, middle_value, minor_value);
+  feature_extractor.getEigenVectors(major_vector, middle_vector, minor_vector);
+  feature_extractor.getMassCenter(mass_center);
+
+  return (max_point_OBB.x - min_point_OBB.x) *
+         (max_point_OBB.y - min_point_OBB.y) *
+         (max_point_OBB.z - min_point_OBB.z);
+
+  ////绘制OBB包围盒
+  // pcl::visualization::PCLVisualizer::Ptr viewer(new
+  // pcl::visualization::PCLVisualizer("3D Viewer"));
+  // viewer->setBackgroundColor(0, 0, 0);
+  ////viewer->addCoordinateSystem(1.0);
+
+  // pcl::visualization::PointCloudColorHandlerRandom<pcl::PointXYZ>
+  // RandomColor(cloud);//设置随机颜色
+  // viewer->addPointCloud<pcl::PointXYZ>(cloud, RandomColor, "points");
+  // viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
+  // 3, "points");
+
+  // Eigen::Vector3f position(position_OBB.x, position_OBB.y, position_OBB.z);
+  // Eigen::Quaternionf quat(rotational_matrix_OBB);
+  // viewer->addCube(position, quat, max_point_OBB.x - min_point_OBB.x,
+  // max_point_OBB.y - min_point_OBB.y, max_point_OBB.z - min_point_OBB.z,
+  // "OBB");
+  // viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION,
+  // pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, "OBB");
+
+  // pcl::PointXYZ center(mass_center(0), mass_center(1), mass_center(2));
+  // pcl::PointXYZ x_axis(major_vector(0) + mass_center(0), major_vector(1) +
+  // mass_center(1), major_vector(2) + mass_center(2)); pcl::PointXYZ
+  // y_axis(middle_vector(0) + mass_center(0), middle_vector(1) + mass_center(1),
+  // middle_vector(2) + mass_center(2)); pcl::PointXYZ z_axis(minor_vector(0) +
+  // mass_center(0), minor_vector(1) + mass_center(1), minor_vector(2) +
+  // mass_center(2)); viewer->addLine(center, x_axis, 1.0f, 0.0f, 0.0f, "major
+  // eigen vector");//主成分 viewer->addLine(center, y_axis, 0.0f, 1.0f, 0.0f,
+  // "middle eigen vector"); viewer->addLine(center, z_axis, 0.0f, 0.0f, 1.0f,
+  // "minor eigen vector");
+
+  // std::cout << mass_center << std::endl;//中心点
+  // std::cout << rotational_matrix_OBB << std::endl;//矩阵
+
+  // while (!viewer->wasStopped())
+  //{
+  //	viewer->spinOnce(100);
+  //}
+}
+
+double
+aabb(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud) //点云AABB包围盒
+{
+  pcl::MomentOfInertiaEstimation<pcl::PointXYZ> feature_extractor;
+  feature_extractor.setInputCloud(cloud);
+  feature_extractor.compute();
+
+  std::vector<float> moment_of_inertia;
+  std::vector<float> eccentricity;
+
+  pcl::PointXYZ min_point_AABB; // AABB包围盒
+  pcl::PointXYZ max_point_AABB;
+
+  Eigen::Vector3f major_vector, middle_vector, minor_vector;
+  Eigen::Vector3f mass_center;
+
+  feature_extractor.getMomentOfInertia(moment_of_inertia);
+  feature_extractor.getEccentricity(eccentricity);
+  feature_extractor.getAABB(min_point_AABB, max_point_AABB);
+  feature_extractor.getEigenVectors(major_vector, middle_vector, minor_vector);
+  feature_extractor.getMassCenter(mass_center);
+
+  return (max_point_AABB.x - min_point_AABB.x) *
+         (max_point_AABB.y - min_point_AABB.y) *
+         (max_point_AABB.z - min_point_AABB.z);
+  ////绘制AABB包围盒
+  // pcl::visualization::PCLVisualizer::Ptr viewer(new
+  // pcl::visualization::PCLVisualizer("3D Viewer"));
+  // viewer->setBackgroundColor(0, 0, 0);
+  ////viewer->addCoordinateSystem(1.0);
+
+  // pcl::visualization::PointCloudColorHandlerRandom<pcl::PointXYZ>
+  // RandomColor(cloud);//设置随机颜色
+  // viewer->addPointCloud<pcl::PointXYZ>(cloud, RandomColor, "points");
+  // viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
+  // 3, "points");
+
+  // viewer->addCube(min_point_AABB.x, max_point_AABB.x, min_point_AABB.y,
+  // max_point_AABB.y, min_point_AABB.z, max_point_AABB.z, 1.0, 1.0, 0.0,
+  // "AABB");
+  // viewer->setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION,
+  // pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, "AABB");
+
+  // pcl::PointXYZ center(mass_center(0), mass_center(1), mass_center(2));
+  // pcl::PointXYZ x_axis(major_vector(0) + mass_center(0), major_vector(1) +
+  // mass_center(1), major_vector(2) + mass_center(2)); pcl::PointXYZ
+  // y_axis(middle_vector(0) + mass_center(0), middle_vector(1) + mass_center(1),
+  // middle_vector(2) + mass_center(2)); pcl::PointXYZ z_axis(minor_vector(0) +
+  // mass_center(0), minor_vector(1) + mass_center(1), minor_vector(2) +
+  // mass_center(2)); viewer->addLine(center, x_axis, 1.0f, 0.0f, 0.0f, "major
+  // eigen vector"); viewer->addLine(center, y_axis, 0.0f, 1.0f, 0.0f, "middle
+  // eigen vector"); viewer->addLine(center, z_axis, 0.0f, 0.0f, 1.0f, "minor
+  // eigen vector");
+
+  // while (!viewer->wasStopped())
+  //{
+  //	viewer->spinOnce(100);
+  //}
+}
+
 void
 PCLVisualizer::on_actiongetAllGeo_triggered()
 {
   vtkSmartPointer<vtkPLYReader> reader = vtkSmartPointer<vtkPLYReader>::New();
-  reader->SetFileName(
-    "E:\\BaiduNetdiskWorkspace\\Paper-of-Luo\\PCD\\dragon_vrip_res4.ply");
+  reader->SetFileName(filePathWithName.toUtf8());
   reader->Update();
   vtkSmartPointer<vtkTriangleFilter> tri =
     vtkSmartPointer<vtkTriangleFilter>::New();
@@ -1549,13 +1708,151 @@ PCLVisualizer::on_actiongetAllGeo_triggered()
   double maxArea = poly->GetMaxCellArea(); //最大单元面积
   double minArea = poly->GetMinCellArea(); //最小单元面积
 
- 
-  //cout << "vol: " << vol << endl;
-  //cout << "area: " << area << endl;
-  //cout << "maxArea: " << maxArea << endl;
-  //cout << "minArea: " << minArea << endl;
-  //cout << "pV: " << pV << endl;
-  //cout << "pX: " << pX << endl;
-  //cout << "pY: " << pY << endl;
-  //cout << "pZ: " << pZ << endl;
+  pcl::PLYReader PLY_reader;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+  PLY_reader.read<pcl::PointXYZ>(filePathWithName.toStdString(), *cloud);
+
+  double vol_aabb = aabb(cloud);
+  double vol_obb = obb(cloud);
+
+  ui->lineEdit_AABB->setText(QString::number(vol_aabb));
+  ui->lineEdit_OBB->setText(QString::number(vol_obb));
+  ui->lineEdit_area->setText(QString::number(area));
+  ui->lineEdit_maxUnitAera->setText(QString::number(maxArea));
+  ui->lineEdit_minUnitAera->setText(QString::number(minArea));
+  ui->lineEdit_vol->setText(QString::number(vol));
+
+  //QMessageBox::information(
+  //  this, "几何属性提取成功", "表面积、体积等计算完成", "确定");
+
+  cout << "vol: " << vol << endl;
+  cout << "area: " << area << endl;
+  cout << "maxArea: " << maxArea << endl;
+  cout << "minArea: " << minArea << endl;
+  cout << "pV: " << pV << endl;
+  cout << "pX: " << pX << endl;
+  cout << "pY: " << pY << endl;
+  cout << "pZ: " << pZ << endl;
+}
+
+void
+PCLVisualizer::on_actionplaneSeg_triggered()
+{
+  // ----------------------------加载点云-----------------------------
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PCDWriter writer;
+  //  if (pcl::io::loadPCDFile<pcl::PointXYZ>(
+  //        "E:\\PCLProject\\pcl-project\\pcl_segmentation\\plane\\cmake_"
+  //        "bin\\table_scene_lms400_downSampling.pcd",
+  //        *cloud) == -1) {
+  //    PCL_ERROR("读取源标点云失败 \n");
+  //  }
+  *cloud = *cloud_;
+  cout << "从点云中读取 " << cloud->size() << " 个点" << endl;
+
+  //第一步：定义输入的原始数据以及分割获得的点、平面系数coefficients、存储内点的索引集合对象inliers
+  pcl::PointCloud<pcl::PointXYZ>::Ptr planar_segment(
+    new pcl::PointCloud<pcl::PointXYZ>); //创建分割对象
+  pcl::ModelCoefficients::Ptr coefficients(
+    new pcl::ModelCoefficients);                         //模型系数
+  pcl::PointIndices::Ptr inliers(new pcl::PointIndices); //索引列表
+  pcl::SACSegmentation<pcl::PointXYZ> seg;               //分割对象
+
+  pcl::ExtractIndices<pcl::PointXYZ> extract; //提取器
+
+  int n_piece = 2; //需要探测的面的个数
+
+  //第二步：加载原始点云到可视化窗口
+
+  //    viewer->setBackgroundColor(0, 0, 0.2);
+  pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> single_color(
+    cloud, 255, 255, 255);
+  viewer_->updatePointCloud<pcl::PointXYZ>(cloud, single_color, "cloud");
+  // viewer_->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE,
+  // 1, "sample"); 第三步：使用RANSAC获取点数最多的面
+  for (int i = 0; i < n_piece; i++) {
+    seg.setOptimizeCoefficients(true); //使用内部点重新估算模型参数
+    seg.setModelType(pcl::SACMODEL_PLANE); //设置模型类型
+    seg.setMethodType(pcl::SAC_RANSAC); //设置随机采样一致性方法类型
+    seg.setDistanceThreshold(
+      0.01); //设定距离阀值，距离阀值决定了点被认为是局内点是必须满足的条件
+    seg.setInputCloud(cloud);
+    seg.segment(*inliers, *coefficients);
+
+    extract.setInputCloud(cloud);
+    extract.setIndices(inliers);
+    extract.setNegative(false);
+    //提取探测出来的平面
+    extract.filter(*planar_segment);
+    // planar_segment为该次探测出来的面片，可以单独进行保存，此处省略
+
+    //剔除探测出的平面，在剩余点中继续探测平面
+    extract.setNegative(true);
+    extract.filter(*cloud);
+
+    int R;
+    int G;
+    int B;
+    if (i == 0) {
+      R = 0;
+      G = 255;
+      B = 0;
+    } else {
+      R = 255;
+      G = 0;
+      B = 0;
+    }
+    std::stringstream ss;
+    ss << "planar_segment_" << (i + 1) << ".pcd";
+    std::string str;
+    ss >> str;
+    writer.write<pcl::PointXYZ>(str, *planar_segment, false);
+
+    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> plane_color(
+      planar_segment, R, G, B);
+    viewer_->addPointCloud<pcl::PointXYZ>(planar_segment, plane_color, str);
+    viewer_->setPointCloudRenderingProperties(
+      pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, str);
+
+    viewer_->resetCamera();
+    ui->qvtkWidget->update();
+  }
+
+  //--------------------LOG--------------------------
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " + "[PCV 主窗口] " + "Point Cloud Plane Segmentation Done.";
+  logList.push_back(logStr);
+  ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
+
+  //--------------------LOG--------------------------
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " + "[PCV 主窗口] " + "PCV has found 2 planes.";
+  logList.push_back(logStr);
+  ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
+
+  // QString info = "搜索到两个平面，是否进行平面分割？";
+  QMessageBox::information(
+    this, "平面分割成功", "搜索到2个平面，是否进行提取？", "确定", "取消");
+}
+
+//显示PLY文件
+void
+PCLVisualizer::on_actionarea_triggered()
+{
+  loadPLYFile();
+  pcl::PolygonMesh mesh;
+  pcl::io::loadPLYFile(filePathWithName.toStdString(), mesh);
+  viewer_->removePointCloud("cloud");
+  viewer_->addPolygonMesh(mesh, "my");
+  viewer_->resetCamera();
+  ui->qvtkWidget->update();
+}
+
+void
+PCLVisualizer::on_actionvol_triggered()
+{
+	QMessageBox::information(
+		this, "几何属性提取成功", "表面积、体积等计算完成", "确定");
 }

@@ -1,4 +1,4 @@
-#ifndef PCLVISUALIZER_H
+﻿#ifndef PCLVISUALIZER_H
 #define PCLVISUALIZER_H
 
 #include <QAction>
@@ -15,6 +15,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
+#include <QMessageBox>
 #include <QProgressDialog>
 #include <QRect>
 #include <QSettings>
@@ -82,10 +83,38 @@
 #include <pcl/filters/voxel_grid.h>             // 体素滤波
 #include <vtkOutputWindow.h>
 
+#include <boost/thread/thread.hpp>
+#include <pcl/ModelCoefficients.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+#include <pcl/sample_consensus/method_types.h> //随机参数估计方法
+#include <pcl/sample_consensus/model_types.h>  //模型定义
+#include <pcl/segmentation/sac_segmentation.h> //RANSAC分割
+#include <pcl/visualization/pcl_visualizer.h>
+#include <sstream>
+#include <stdlib.h> //rand()头文件
 #include <vtkMassProperties.h>
 #include <vtkPLYReader.h>
 #include <vtkSmartPointer.h>
 #include <vtkTriangleFilter.h>
+
+#include <Eigen/Core>
+#include <iostream>
+#include <pcl/common/common.h>
+#include <pcl/common/transforms.h>
+#include <pcl/features/moment_of_inertia_estimation.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/io/io.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/visualization/pcl_visualizer.h>
+#include <string>
+#include <string>
+#include <vector>
+#include <vtkAutoInit.h>
 //可视化相关头文件
 #include <vtkActor.h>
 #include <vtkAutoInit.h>
@@ -133,6 +162,8 @@ public:
 
   double getMinValue(PointT p1, PointT p2);
   double getMaxValue(PointT p1, PointT p2);
+
+  QString filePathWithName;
 
   // 打开进度窗口
   void openProgressDlg(int num);
@@ -583,6 +614,7 @@ public slots:
   //保存文件
   void savePCDFile();
   void loadPCDFile();
+  void loadPLYFile();
 
   //选择需要控制的坐标轴
   void chooseAxis();
@@ -678,6 +710,12 @@ private slots:
   void on_actionquit_triggered();
 
   void on_actiongetAllGeo_triggered();
+
+  void on_actionplaneSeg_triggered();
+
+  void on_actionarea_triggered();
+
+  void on_actionvol_triggered();
 
 private:
   Ui::PCLVisualizer* ui;
