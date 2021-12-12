@@ -1842,12 +1842,12 @@ void
 PCLVisualizer::on_actionarea_triggered()
 {
   loadPLYFile();
-  pcl::PolygonMesh mesh;
-  pcl::io::loadPLYFile(filePathWithName.toStdString(), mesh);
-  viewer_->removePointCloud("cloud");
-  viewer_->addPolygonMesh(mesh, "my");
-  viewer_->resetCamera();
-  ui->qvtkWidget->update();
+  //pcl::PolygonMesh mesh;
+  //pcl::io::loadPLYFile(filePathWithName.toStdString(), mesh);
+  //viewer_->removePointCloud("cloud");
+  //viewer_->addPolygonMesh(mesh, "my");
+  //viewer_->resetCamera();
+  //ui->qvtkWidget->update();
 }
 
 void

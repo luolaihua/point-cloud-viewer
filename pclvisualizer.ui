@@ -155,10 +155,14 @@
     </property>
     <addaction name="actionKD_tree"/>
     <addaction name="actionOC_tree"/>
-    <addaction name="actionPlaneSeg"/>
-    <addaction name="actionCylinderSeg"/>
     <addaction name="actionNormalEst"/>
-    <addaction name="actiondownSampling"/>
+    <addaction name="separator"/>
+    <addaction name="actionupSampling"/>
+    <addaction name="actionrandomSamping"/>
+    <addaction name="actionuniformDownSampling"/>
+    <addaction name="actionNormalSpaceSampling"/>
+    <addaction name="actionvoxelGrid"/>
+    <addaction name="separator"/>
     <addaction name="actionCoordinateSystem"/>
     <addaction name="actionBGColor"/>
    </widget>
@@ -218,11 +222,13 @@
      <string>表面重建</string>
     </property>
     <addaction name="actionMLS"/>
+    <addaction name="actionRBF"/>
+    <addaction name="actionNURBS"/>
     <addaction name="actionMLS_GreedyProjection"/>
     <addaction name="actionPoisson"/>
-    <addaction name="actionNURBS"/>
-    <addaction name="actionRBF"/>
-    <addaction name="actionblobby"/>
+    <addaction name="actionMC"/>
+    <addaction name="actiona_shape"/>
+    <addaction name="actionGP"/>
     <addaction name="separator"/>
     <addaction name="actionbestSurface"/>
    </widget>
@@ -264,8 +270,12 @@
     <addaction name="actionarea"/>
     <addaction name="actionvol"/>
     <addaction name="separator"/>
-    <addaction name="action_2"/>
     <addaction name="action_3"/>
+    <addaction name="action_2"/>
+    <addaction name="separator"/>
+    <addaction name="actiondensity"/>
+    <addaction name="actionxiefang"/>
+    <addaction name="separator"/>
     <addaction name="actiongetAllGeo"/>
    </widget>
    <widget class="QMenu" name="menu_11">
@@ -279,6 +289,9 @@
     <addaction name="actiongrowSeg"/>
     <addaction name="actionsuperVoxel"/>
     <addaction name="actiongroundSeg"/>
+    <addaction name="actionEdgeExtract"/>
+    <addaction name="actionNormalSeg"/>
+    <addaction name="actionMinSeg"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_4"/>
@@ -379,7 +392,7 @@
         </sizepolicy>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="pointProperty">
         <attribute name="title">
@@ -411,7 +424,7 @@
             <set>Qt::AlignCenter</set>
            </property>
            <property name="readOnly">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -466,7 +479,7 @@
             <set>Qt::AlignCenter</set>
            </property>
            <property name="readOnly">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -479,7 +492,7 @@
             <set>Qt::AlignCenter</set>
            </property>
            <property name="readOnly">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -539,7 +552,7 @@
             <set>Qt::AlignCenter</set>
            </property>
            <property name="readOnly">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -632,7 +645,7 @@
             <set>Qt::AlignCenter</set>
            </property>
            <property name="readOnly">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
           </widget>
          </item>
@@ -1402,7 +1415,7 @@
   </action>
   <action name="actionCoordinateSystem">
    <property name="text">
-    <string>坐标轴 [OFF]</string>
+    <string>添加坐标轴</string>
    </property>
   </action>
   <action name="actionBGColor">
@@ -1766,7 +1779,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="actionPoisson">
    <property name="text">
-    <string>Poisson</string>
+    <string>泊松算法</string>
    </property>
   </action>
   <action name="actionNURBS">
@@ -1889,11 +1902,6 @@ p, li { white-space: pre-wrap; }
     <string>中值滤波 </string>
    </property>
   </action>
-  <action name="actiondownSampling">
-   <property name="text">
-    <string>下采样</string>
-   </property>
-  </action>
   <action name="actionbestRemoval">
    <property name="icon">
     <iconset resource="images.qrc">
@@ -2006,6 +2014,81 @@ p, li { white-space: pre-wrap; }
   <action name="action_3">
    <property name="text">
     <string>外接圆</string>
+   </property>
+  </action>
+  <action name="actiondensity">
+   <property name="text">
+    <string>点云密度</string>
+   </property>
+  </action>
+  <action name="actionVoxelGrid">
+   <property name="text">
+    <string>VoxelGrid</string>
+   </property>
+  </action>
+  <action name="actionUniform_2">
+   <property name="text">
+    <string>Uniform</string>
+   </property>
+  </action>
+  <action name="actionvoxelGrid">
+   <property name="text">
+    <string>体素下采样</string>
+   </property>
+  </action>
+  <action name="actionuniformDownSampling">
+   <property name="text">
+    <string>均匀采样</string>
+   </property>
+  </action>
+  <action name="actionupSampling">
+   <property name="text">
+    <string>增采样</string>
+   </property>
+  </action>
+  <action name="actionEdgeExtract">
+   <property name="text">
+    <string>边界提取</string>
+   </property>
+  </action>
+  <action name="actionGP">
+   <property name="text">
+    <string>贪婪投影三角化算法</string>
+   </property>
+  </action>
+  <action name="actionMC">
+   <property name="text">
+    <string>移动立方体算法</string>
+   </property>
+  </action>
+  <action name="actiona_shape">
+   <property name="text">
+    <string>α-shape算法</string>
+   </property>
+  </action>
+  <action name="actionrandomSamping">
+   <property name="text">
+    <string>随机采样</string>
+   </property>
+  </action>
+  <action name="actionNormalSpaceSampling">
+   <property name="text">
+    <string>法线空间采样</string>
+   </property>
+  </action>
+  <action name="actionNormalSeg">
+   <property name="text">
+    <string>法线微分分割</string>
+   </property>
+  </action>
+  <action name="actionMinSeg">
+   <property name="text">
+    <string>最小图分割</string>
+   </property>
+  </action>
+  <action name="actionxiefang">
+   <property name="text">
+    <string>协方差矩阵</string>
    </property>
   </action>
  </widget>
