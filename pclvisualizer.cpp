@@ -13,11 +13,11 @@
 #include <QTextStream>
 PCLVisualizer::PCLVisualizer(QWidget* parent)
   : QMainWindow(parent)
-  , point_size(1)
+  , point_size(1) // 设置初始点大小
   , ui(new Ui::PCLVisualizer)
-  , bgColor(0, 0, 50)
-  , isRBGA(true)
-  , isCloud2(true)
+  , bgColor(0, 0, 50) // 设置初始背景颜色
+  , isRBGA(true) //是否默认开启RGBA显示点云
+  , isCloud2(true) // 是否显示第二个点云
 
 {
   ui->setupUi(this);
@@ -26,26 +26,22 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   QString str = "PointCloudViewer";
   this->setWindowTitle(str);
 
-  //--------------------LOG--------------------------
-  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " + "[PCV 系统] " + "System is initializing";
-  logList.push_back(logStr);
-  ui->logList->addItem(logStr);
+
+  showLogItem("PCV 系统", "系统正在初始化...");
+
   int x = this->x();
   int y = this->y();
   int width = this->width();
   int height = this->height();
 
-  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " + "[PCV 系统] " + "Restoring MainWindow Properties: " +
+  logStr = "Restoring MainWindow Properties: " +
            QString("X-Y-Width-Height(%1,%2,%3,%4)")
              .arg(x)
              .arg(y)
              .arg(width)
              .arg(height);
-  logList.push_back(logStr);
-  ui->logList->addItem(logStr);
-  //--------------------LOG--------------------------
+  showLogItem("PCV 窗口属性", logStr);
+ 
 
   //  //创建动作，工具栏以及菜单栏
   createActions();
@@ -87,17 +83,23 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   viewer_->setLookUpTableID("cloud");
   ui->qvtkWidget->update();
 
-  //--------------------LOG--------------------------
-  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " + "[PCV 系统] " + "System Initialize Done";
-  logList.push_back(logStr);
-  ui->logList->addItem(logStr);
-  //--------------------LOG--------------------------
+  showLogItem("PCV 系统", "系统初始化完成。");
+
 }
 
 PCLVisualizer::~PCLVisualizer()
 {
   delete ui;
+}
+
+void PCLVisualizer::showLogItem(QString item, QString info)
+{
+	//--------------------LOG--------------------------
+	logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+		"] " + " [ "+item+" ] " + info;
+	logList.push_back(logStr);
+	ui->logList->addItem(logStr);
+	//--------------------LOG--------------------------
 }
 
 void

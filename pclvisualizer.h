@@ -151,6 +151,7 @@ public:
   PCLVisualizer(QWidget* parent = nullptr);
   ~PCLVisualizer();
 
+  void showLogItem(QString item, QString info);
   void createActions();  //创建动作
   void createMenus();    //创建菜单
   void createToolBars(); //创建工具栏

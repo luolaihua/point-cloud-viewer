@@ -10,16 +10,17 @@
 int
 main(int argc, char* argv[])
 {
-
+	//TODO 增加设置窗口，设置一些属性
+	
   vtkOutputWindow::SetGlobalWarningDisplay(0); //不弹出vtkOutputWindow窗口
   QApplication a(argc, argv);
 
-  QPixmap pixmap("logo1.png");  //读取图片
+  QPixmap pixmap("logo1.png");  // 读取图片
   QSplashScreen splash(pixmap); //
   // splash.setWindowOpacity(0.9); // 设置窗口透明度
   // splash.setGeometry()
   // splash.setFixedSize(600, 300);
-  splash.show();
+  //splash.show();
   // splash.showMessage("程序正在加载..1....", Qt::AlignCenter, Qt::red);
   // //显示文字
   // splash.showMessage("程序正在加载......", Qt::AlignCenter, Qt::red);
@@ -53,29 +54,29 @@ main(int argc, char* argv[])
   qDebug() << qApp->applicationDirPath() << endl;
   QString wstrFilePath = qApp->applicationDirPath() + "/setting.ini";
   QSettings* settings = new QSettings(
-    wstrFilePath, QSettings::IniFormat); //用QSetting获取ini文件中的数据
+	wstrFilePath, QSettings::IniFormat); //用QSetting获取ini文件中的数据
   int x = settings->value("WindowGeometry/x").toInt();
   int y = settings->value("WindowGeometry/y").toInt();
   int width = settings->value("WindowGeometry/width").toInt();
   int height = settings->value("WindowGeometry/height").toInt();
   qDebug() << "Position is right:" << x << " " << y << " " << width << " "
-           << height;
+		   << height;
   QDesktopWidget* desktopWidget = QApplication::desktop();
   QRect clientRect = desktopWidget->availableGeometry();
   QRect targRect0 = QRect(clientRect.width() / 4,
-                          clientRect.height() / 4,
-                          clientRect.width() / 2,
-                          clientRect.height() / 2);
+						  clientRect.height() / 4,
+						  clientRect.width() / 2,
+						  clientRect.height() / 2);
   QRect targRect = QRect(x, y, width, height);
   if (
-    width == 0 || height == 0 || x < 0 || x > clientRect.width() || y < 0 ||
-    y >
-      clientRect
-        .height()) //如果上一次关闭软件的时候，窗口位置不正常，则本次显示在显示器的正中央
+	width == 0 || height == 0 || x < 0 || x > clientRect.width() || y < 0 ||
+	y >
+	  clientRect
+		.height()) //如果上一次关闭软件的时候，窗口位置不正常，则本次显示在显示器的正中央
   {
-    targRect = targRect0;
-    qDebug() << "Position is not right:" << x << " " << y << " " << width << " "
-             << height;
+	targRect = targRect0;
+	qDebug() << "Position is not right:" << x << " " << y << " " << width << " "
+			 << height;
   }
 
   PCLVisualizer w;
