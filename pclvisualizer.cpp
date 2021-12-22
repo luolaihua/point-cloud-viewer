@@ -13,39 +13,20 @@
 #include <QTextStream>
 PCLVisualizer::PCLVisualizer(QWidget* parent)
   : QMainWindow(parent)
-  , point_size(1) // 设置初始点大小
-  , ui(new Ui::PCLVisualizer)
-  , bgColor(0, 0, 50) // 设置初始背景颜色
-  , isRBGA(true) //是否默认开启RGBA显示点云
-  , isCloud2(true) // 是否显示第二个点云
-
+  , isCloud2(true)            // 设置初始点大小
+  , point_size(5)             // 设置初始背景颜色
+  , ui(new Ui::PCLVisualizer) //是否默认开启RGBA显示点云
+  , isRBGA(true)              // 是否显示第二个点云
+  , bgColor(0, 0, 50)         // 初始化顺序要和声明的顺序一致
 {
   ui->setupUi(this);
-
-  //设置窗口名称
-  QString str = "PointCloudViewer";
-  this->setWindowTitle(str);
-
-
-  showLogItem("PCV 系统", "系统正在初始化...");
-
-  int x = this->x();
-  int y = this->y();
-  int width = this->width();
-  int height = this->height();
-
-  logStr = "Restoring MainWindow Properties: " +
-           QString("X-Y-Width-Height(%1,%2,%3,%4)")
-             .arg(x)
-             .arg(y)
-             .arg(width)
-             .arg(height);
-  showLogItem("PCV 窗口属性", logStr);
- 
+  //  cout << "INIT" << endl;
+  initPCV();
 
   //  //创建动作，工具栏以及菜单栏
   createActions();
   //    createMenus();
+  // 创建工具栏
   createToolBars();
 
   //初始化点云数据
@@ -84,7 +65,6 @@ PCLVisualizer::PCLVisualizer(QWidget* parent)
   ui->qvtkWidget->update();
 
   showLogItem("PCV 系统", "系统初始化完成。");
-
 }
 
 PCLVisualizer::~PCLVisualizer()
@@ -92,14 +72,58 @@ PCLVisualizer::~PCLVisualizer()
   delete ui;
 }
 
-void PCLVisualizer::showLogItem(QString item, QString info)
+void
+PCLVisualizer::initPCV()
 {
-	//--------------------LOG--------------------------
-	logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-		"] " + " [ "+item+" ] " + info;
-	logList.push_back(logStr);
-	ui->logList->addItem(logStr);
-	//--------------------LOG--------------------------
+  //设置窗口名称
+  QString str = "PointCloudViewer";
+  this->setWindowTitle(str);
+
+  showLogItem("PCV 系统", "系统正在初始化...");
+
+  logStr = "主窗口位置已还原: " + QString("X-Y-Width-Height(%1,%2,%3,%4)")
+                                    .arg(this->x())
+                                    .arg(this->y())
+                                    .arg(this->width())
+                                    .arg(this->height());
+  showLogItem("PCV 窗口", logStr);
+
+  //写ini文件，记录当前窗口位置和大小：
+  QString wstrFilePath =
+    qApp->applicationDirPath() + "/setting.ini"; // .ini放在工程源文件目录下
+  settings = new QSettings(
+    wstrFilePath, QSettings::IniFormat); //用QSetting获取ini文件中的数据
+  // settings->clear();                     //清空当前配置文件中的内容
+}
+
+void
+PCLVisualizer::showLogItem(QString item, QString info)
+{
+  //--------------------LOG--------------------------
+  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+           "] " + " [ " + item + " ] " + info;
+  logList.push_back(logStr);
+  ui->logList->addItem(logStr);
+  //--------------------LOG--------------------------
+}
+
+void
+PCLVisualizer::saveSetting(QString key, QString value)
+{
+  //写ini文件，记录当前窗口位置和大小：
+  QString wstrFilePath =
+    qApp->applicationDirPath() + "/setting.ini"; // .ini放在工程源文件目录下
+  QSettings* settings = new QSettings(
+    wstrFilePath, QSettings::IniFormat); //用QSetting获取ini文件中的数据
+  // settings->clear();                     //清空当前配置文件中的内容
+  settings->setValue(key, value);
+  settings->sync();
+}
+
+QVariant
+PCLVisualizer::getSetting(QString name)
+{
+  return settings->value(name);
 }
 
 void
@@ -286,8 +310,8 @@ PCLVisualizer::initPointCloud()
   cloudRGBA_.reset(new PointCloudTRGBA);
 
   // The number of points in the cloud
-  cloud_->resize(800);
-  cloudRGBA_->resize(800);
+  cloud_->resize(1000);
+  cloudRGBA_->resize(1000);
   // Fill the cloud with random points
   for (size_t i = 0; i < cloud_->points.size(); ++i) {
     cloud_->points[i].x = 1024 * rand() / (RAND_MAX + 1.0f);
@@ -295,18 +319,14 @@ PCLVisualizer::initPointCloud()
     cloud_->points[i].z = 1024 * rand() / (RAND_MAX + 1.0f);
   }
 
+  // 获取点云内的最大点和最小点
   pcl::getMinMax3D(*cloud_, p_min, p_max);
   maxLen = getMaxValue(p_max, p_min);
 
   //拷贝一份给RGBA点云
   pcl::copyPointCloud(*cloud_, *cloudRGBA_);
 
-  //--------------------LOG--------------------------
-  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " + "[PCV 主窗口] " + "Point Cloud Initialize Done.";
-  logList.push_back(logStr);
-  ui->logList->addItem(logStr);
-  //--------------------LOG--------------------------
+  showLogItem("PCV 主窗口", "点云初始化完成");
 }
 
 //连接信号槽
@@ -410,12 +430,17 @@ PCLVisualizer::savePCDFile()
 void
 PCLVisualizer::loadPCDFile()
 {
-  QString fileFormat, fileName, fileBaseName, pointCount, filePath, fileSuffix;
+  QString fileFormat, fileName, fileBaseName, pointCount, filePath, fileSuffix,
+    lastPath;
   //读取文件名
+  //记住上一次加载的路径
+
+  lastPath = getSetting("FilePath/lastPath").toString();
+
   QString filePathWithName =
     QFileDialog::getOpenFileName(this,
                                  tr("Open point cloud"),
-                                 "E:/BaiduNetdiskWorkspace/Paper-of-Luo/PCD",
+									lastPath,
                                  tr("Point cloud data (*.pcd *.ply)"));
   QFileInfo fileInfo;
   fileInfo = QFileInfo(filePathWithName);
@@ -426,39 +451,25 @@ PCLVisualizer::loadPCDFile()
   //绝对路径
   filePath = fileInfo.absolutePath();
   fileBaseName = fileInfo.baseName();
-  // qDebug() << fileName << endl
-  //         << fileSuffix << endl
-  //         << filePath << endl
-  //         << fileInfo.baseName() << endl
-  //         << fileInfo.completeBaseName();
+   //qDebug() << fileName << endl
+   //        << fileSuffix << endl
+   //        << filePath << endl
+   //        << fileInfo.baseName() << endl
+   //        << fileInfo.completeBaseName();
 
-  //--------------------LOG--------------------------
-  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " + "[点云文件选择] " + filePathWithName;
-  logList.push_back(logStr);
-  ui->logList->addItem(logStr);
-  PCL_INFO("File chosen: %s\n", filePathWithName.toStdString().c_str());
-  //--------------------LOG--------------------------
+  showLogItem("点云文件选择", filePath);
+  // PCL_INFO("File chosen: %s\n", filePathWithName.toStdString().c_str());
 
   PointCloudT::Ptr cloud_tmp(new PointCloudT);
 
   if (filePathWithName.isEmpty()) {
-    //--------------------LOG--------------------------
-    logStr = "[" +
-             QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-             "] " + "[文件加载失败] " + filePathWithName;
-    logList.push_back(logStr);
-    ui->logList->addItem(logStr);
-    //--------------------LOG--------------------------
+    showLogItem("文件加载失败", filePathWithName);
     return;
   }
 
-  //--------------------LOG--------------------------
-  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " + "[文件加载成功] " + filePathWithName;
-  logList.push_back(logStr);
-  ui->logList->addItem(logStr);
-  //--------------------LOG--------------------------
+  showLogItem("文件加载成功", filePathWithName);
+  // 将当前文件路径保存，下次使用
+  saveSetting("FilePath/lastPath", filePathWithName);
 
   //判断文件类型然后加载点云
   int return_status;
@@ -473,35 +484,20 @@ PCLVisualizer::loadPCDFile()
     fileFormat = "PLY";
   }
 
-  //--------------------LOG--------------------------
-  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " + "[点云加载中] File Format is " + fileFormat;
-  logList.push_back(logStr);
-  ui->logList->addItem(logStr);
-  //--------------------LOG--------------------------
+  showLogItem("点云加载中", "文件格式为：" + fileFormat);
 
   //判断是否加载成功
   if (return_status != 0) {
     PCL_ERROR("Error reading point cloud %s\n",
               filePathWithName.toStdString().c_str());
 
-    //--------------------LOG--------------------------
-    logStr = "[" +
-             QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-             "] " + "[点云加载中] Error reading point cloud";
-    logList.push_back(logStr);
-    ui->logList->addItem(logStr);
-    //--------------------LOG--------------------------
+	showLogItem("点云加载中", fileName+" 文件读取失败。");
     return;
   }
   PCL_INFO("file has loaded\n");
-  //--------------------LOG--------------------------
-  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " + "[点云加载完成] " + fileName;
-  logList.push_back(logStr);
-  ui->logList->addItem(logStr);
-  //--------------------LOG--------------------------
 
+  showLogItem("点云加载完成", fileFormat);
+ 
   // If point cloud contains NaN values, remove them before updating the
   // visualizer point cloud
   //    True if no points are invalid (e.g., have NaN or Inf values in any of
@@ -517,14 +513,10 @@ PCLVisualizer::loadPCDFile()
   //将当前点云拷贝给RGBA点云
   pcl::copyPointCloud(*cloud_, *cloudRGBA_);
 
-  //--------------------LOG--------------------------
+  showLogItem("点云信息", fileName + QString(" 点云数量: %1").arg(cloud_->points.size()));
+
   qDebug() << "The number of points :" << cloud_->points.size();
-  logStr = "[" + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-           "] " +
-           QString("[点云信息] Points Num : %1").arg(cloud_->points.size());
-  logList.push_back(logStr);
-  ui->logList->addItem(logStr);
-  //--------------------LOG--------------------------
+
 
   //更新点云属性信息
   ui->fileFormatEdt->setText(fileFormat);
@@ -560,6 +552,8 @@ PCLVisualizer::loadPCDFile()
     viewer_->updatePointCloud(cloud_, "cloud");
   }
   viewer_->resetCamera();
+  viewer_->setPointCloudRenderingProperties(
+	  pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1);
   ui->qvtkWidget->update();
 }
 
@@ -694,12 +688,10 @@ PCLVisualizer::closeEvent(QCloseEvent* event)
 {
   //写ini文件，记录当前窗口位置和大小：
   QString wstrFilePath =
-    qApp->applicationDirPath() +
-    "/setting.ini"; // in
-                    // windows，我的工程名为EditPic，二editpic.ini放在工程源文件目录下
+    qApp->applicationDirPath() + "/setting.ini"; // .ini放在工程源文件目录下
   QSettings* settings = new QSettings(
     wstrFilePath, QSettings::IniFormat); //用QSetting获取ini文件中的数据
-  settings->clear();                     //清空当前配置文件中的内容
+  // settings->clear();                     //清空当前配置文件中的内容
   settings->setValue("WindowGeometry/x", this->x());
   settings->setValue("WindowGeometry/y", this->y());
   settings->setValue("WindowGeometry/width", this->width());
@@ -1609,13 +1601,13 @@ obb(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud) //点云OBB有向包围盒
   // pcl::PointXYZ center(mass_center(0), mass_center(1), mass_center(2));
   // pcl::PointXYZ x_axis(major_vector(0) + mass_center(0), major_vector(1) +
   // mass_center(1), major_vector(2) + mass_center(2)); pcl::PointXYZ
-  // y_axis(middle_vector(0) + mass_center(0), middle_vector(1) + mass_center(1),
-  // middle_vector(2) + mass_center(2)); pcl::PointXYZ z_axis(minor_vector(0) +
-  // mass_center(0), minor_vector(1) + mass_center(1), minor_vector(2) +
-  // mass_center(2)); viewer->addLine(center, x_axis, 1.0f, 0.0f, 0.0f, "major
-  // eigen vector");//主成分 viewer->addLine(center, y_axis, 0.0f, 1.0f, 0.0f,
-  // "middle eigen vector"); viewer->addLine(center, z_axis, 0.0f, 0.0f, 1.0f,
-  // "minor eigen vector");
+  // y_axis(middle_vector(0) + mass_center(0), middle_vector(1) +
+  // mass_center(1), middle_vector(2) + mass_center(2)); pcl::PointXYZ
+  // z_axis(minor_vector(0) + mass_center(0), minor_vector(1) + mass_center(1),
+  // minor_vector(2) + mass_center(2)); viewer->addLine(center, x_axis, 1.0f,
+  // 0.0f, 0.0f, "major eigen vector");//主成分 viewer->addLine(center, y_axis,
+  // 0.0f, 1.0f, 0.0f, "middle eigen vector"); viewer->addLine(center, z_axis,
+  // 0.0f, 0.0f, 1.0f, "minor eigen vector");
 
   // std::cout << mass_center << std::endl;//中心点
   // std::cout << rotational_matrix_OBB << std::endl;//矩阵
@@ -1672,13 +1664,13 @@ aabb(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud) //点云AABB包围盒
   // pcl::PointXYZ center(mass_center(0), mass_center(1), mass_center(2));
   // pcl::PointXYZ x_axis(major_vector(0) + mass_center(0), major_vector(1) +
   // mass_center(1), major_vector(2) + mass_center(2)); pcl::PointXYZ
-  // y_axis(middle_vector(0) + mass_center(0), middle_vector(1) + mass_center(1),
-  // middle_vector(2) + mass_center(2)); pcl::PointXYZ z_axis(minor_vector(0) +
-  // mass_center(0), minor_vector(1) + mass_center(1), minor_vector(2) +
-  // mass_center(2)); viewer->addLine(center, x_axis, 1.0f, 0.0f, 0.0f, "major
-  // eigen vector"); viewer->addLine(center, y_axis, 0.0f, 1.0f, 0.0f, "middle
-  // eigen vector"); viewer->addLine(center, z_axis, 0.0f, 0.0f, 1.0f, "minor
-  // eigen vector");
+  // y_axis(middle_vector(0) + mass_center(0), middle_vector(1) +
+  // mass_center(1), middle_vector(2) + mass_center(2)); pcl::PointXYZ
+  // z_axis(minor_vector(0) + mass_center(0), minor_vector(1) + mass_center(1),
+  // minor_vector(2) + mass_center(2)); viewer->addLine(center, x_axis, 1.0f,
+  // 0.0f, 0.0f, "major eigen vector"); viewer->addLine(center, y_axis,
+  // 0.0f, 1.0f, 0.0f, "middle eigen vector"); viewer->addLine(center, z_axis,
+  // 0.0f, 0.0f, 1.0f, "minor eigen vector");
 
   // while (!viewer->wasStopped())
   //{
@@ -1724,7 +1716,7 @@ PCLVisualizer::on_actiongetAllGeo_triggered()
   ui->lineEdit_minUnitAera->setText(QString::number(minArea));
   ui->lineEdit_vol->setText(QString::number(vol));
 
-  //QMessageBox::information(
+  // QMessageBox::information(
   //  this, "几何属性提取成功", "表面积、体积等计算完成", "确定");
 
   cout << "vol: " << vol << endl;
@@ -1844,17 +1836,17 @@ void
 PCLVisualizer::on_actionarea_triggered()
 {
   loadPLYFile();
-  //pcl::PolygonMesh mesh;
-  //pcl::io::loadPLYFile(filePathWithName.toStdString(), mesh);
-  //viewer_->removePointCloud("cloud");
-  //viewer_->addPolygonMesh(mesh, "my");
-  //viewer_->resetCamera();
-  //ui->qvtkWidget->update();
+  // pcl::PolygonMesh mesh;
+  // pcl::io::loadPLYFile(filePathWithName.toStdString(), mesh);
+  // viewer_->removePointCloud("cloud");
+  // viewer_->addPolygonMesh(mesh, "my");
+  // viewer_->resetCamera();
+  // ui->qvtkWidget->update();
 }
 
 void
 PCLVisualizer::on_actionvol_triggered()
 {
-	QMessageBox::information(
-		this, "几何属性提取成功", "表面积、体积等计算完成", "确定");
+  QMessageBox::information(
+    this, "几何属性提取成功", "表面积、体积等计算完成", "确定");
 }

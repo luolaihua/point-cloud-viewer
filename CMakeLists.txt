@@ -58,7 +58,7 @@ else()
     else()
         add_executable(PointCloudViewer
            # 是否打开控制台
-            WIN32
+           # WIN32
             ${PROJECT_SOURCES}
         )
     endif()

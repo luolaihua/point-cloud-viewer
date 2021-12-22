@@ -151,7 +151,12 @@ public:
   PCLVisualizer(QWidget* parent = nullptr);
   ~PCLVisualizer();
 
+  void initPCV();
+  //显示log信息
   void showLogItem(QString item, QString info);
+  // 保存设置
+  void saveSetting(QString name, QString item);
+  QVariant getSetting(QString name);
   void createActions();  //创建动作
   void createMenus();    //创建菜单
   void createToolBars(); //创建工具栏
@@ -722,6 +727,8 @@ private:
   Ui::PCLVisualizer* ui;
   inputDialog* inputDlg;
 
+  //软件设置
+  QSettings* settings;
   QString logStr;
   QStringList logList;
 
